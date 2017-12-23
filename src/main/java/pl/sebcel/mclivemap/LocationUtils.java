@@ -17,7 +17,7 @@ public class LocationUtils {
         List<PlayerData> playersData = new ArrayList<>();
 
         for (String locationFile : locationFiles) {
-            playersData.add(loadPlayerLocations(locationFile));
+            playersData.add(loadPlayerLocations(fileLocationsDirectoryPath + File.separator + locationFile));
         }
 
         return playersData;
@@ -46,7 +46,7 @@ public class LocationUtils {
         PlayerData playerData = new PlayerData();
 
         try {
-            String playerName = locationFilePath.substring(locationFilePath.indexOf("-") + 1, locationFilePath.lastIndexOf("."));
+            String playerName = locationFilePath.substring(locationFilePath.lastIndexOf("-") + 1, locationFilePath.lastIndexOf("."));
             playerData.setName(playerName);
 
             List<String> locations = Files.readAllLines(Paths.get(locationFilePath));
