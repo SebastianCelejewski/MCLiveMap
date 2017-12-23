@@ -5,5 +5,12 @@ repositories {
 }
 
 dependencies {
-	runtime "com.flowpowered:flow-nbt:1.0.0"
+    compile "com.flowpowered:flow-nbt:1.0.0"
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'pl.sebcel.mclivemap.Program'
+        attributes 'Class-Path': 'flow-nbt-1.0.0.jar'
+    }
 }
