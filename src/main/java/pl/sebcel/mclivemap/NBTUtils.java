@@ -22,6 +22,8 @@ public class NBTUtils {
             int regionZ = regionIds[regionIdx][1];
             loadHeightData(worldDirectory, heightMap, regionX, regionZ);
         }
+        
+        System.out.println("  - Loaded terrain data for " + heightMap.getMinX() + "<x<" + heightMap.getMaxX() + " and " + heightMap.getMinZ() + "<z<" + heightMap.getMaxZ());
 
         return heightMap;
     }
@@ -48,8 +50,8 @@ public class NBTUtils {
 
                 CompoundMap child = (CompoundMap) t.getValue();
                 CompoundMap levelTag = (CompoundMap) child.get("Level").getValue();
-                int zPos = (int) levelTag.get("zPos").getValue();
-                int xPos = (int) levelTag.get("xPos").getValue();
+                int zPos = ((Tag<Integer>) levelTag.get("zPos")).getValue();
+                int xPos = ((Tag<Integer>) levelTag.get("xPos")).getValue();
                 int[] heightMapData = (int[]) levelTag.get("HeightMap").getValue();
 
                 for (int x = 0; x < 16; x++) {
