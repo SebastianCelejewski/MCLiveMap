@@ -6,6 +6,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 import pl.sebcel.mclivemap.domain.PlayerData;
+import pl.sebcel.mclivemap.domain.PlayerLocation;
 
 public class Program {
 
@@ -27,7 +28,7 @@ public class Program {
         String locationsDirectory = args[1];
 
         List<PlayerData> playersData = locationUtils.loadPlayersLocations(locationsDirectory);
-        HeightMap terrainData = nbtUtils.loadTerrainData(worldDirectory, new int[][] { 
+        HeightMap terrainData = nbtUtils.loadTerrainData(worldDirectory, new int[][] {
             {0,0}, 
             {-1,0},
             {0,-1},
@@ -44,4 +45,21 @@ public class Program {
 
         System.out.println("Done.");
     }
+    
+    private int getRegionX(PlayerLocation playerLocation) {
+        int regionX = (int) Math.floor(playerLocation.getX() / 512);
+        if (playerLocation.getX() < 0) {
+            regionX = regionX - 1;
+        }
+        return regionX;
+    }
+
+    private int getRegionZ(PlayerLocation playerLocation) {
+        int regionZ = (int) Math.floor(playerLocation.getZ() / 512);
+        if (playerLocation.getZ() < 0) {
+            regionZ = regionZ - 1;
+        }
+        return regionZ;
+    }
+    
 }
