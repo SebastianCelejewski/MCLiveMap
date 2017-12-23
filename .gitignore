@@ -1,0 +1,12 @@
+/.gradle/
+/.settings/
+/bin/
+/build/
+/world/
+/gradle/
+*.png
+*.csv
+gradlew
+gradlew.bat
+.project
+.classpath
