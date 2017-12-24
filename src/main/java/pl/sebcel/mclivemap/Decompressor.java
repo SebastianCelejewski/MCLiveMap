@@ -5,7 +5,7 @@ import java.util.zip.Inflater;
 
 public class Decompressor {
 
-    private byte[] buffer = new byte[256 * 256];
+    private byte[] buffer = new byte[256 * 256 * 256];
     private Inflater decompressor = new Inflater();
 
     public synchronized byte[] decompress(byte[] input, int offset, int length) {

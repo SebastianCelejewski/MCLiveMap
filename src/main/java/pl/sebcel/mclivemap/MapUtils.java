@@ -8,14 +8,21 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import pl.sebcel.mclivemap.NBTUtils.Mode;
 import pl.sebcel.mclivemap.domain.PlayerData;
 import pl.sebcel.mclivemap.domain.PlayerLocation;
 
 public class MapUtils {
 
     private final static Color[] COLOR_TABLE = new Color[] { Color.BLACK, Color.BLUE, Color.RED, Color.GREEN, Color.DARK_GRAY };
+    
+    private BlockData blockData;
+    
+    public MapUtils(BlockData blockData) {
+        this.blockData = blockData;
+    }
 
-    public byte[] renderMap(HeightMap heightMap, List<PlayerData> playersLocations) throws Exception {
+    public byte[] renderMap(HeightMap heightMap, List<PlayerData> playersLocations, Mode mode) throws Exception {
         int xSize = heightMap.getMaxX() - heightMap.getMinX();
         int zSize = heightMap.getMaxZ() - heightMap.getMinZ();
 
@@ -26,7 +33,12 @@ public class MapUtils {
             for (int z = heightMap.getMinZ(); z < heightMap.getMaxZ(); z++) {
                 Integer height = heightMap.getHeight(x, z);
                 if (height != null) {
-                    int rgb = getRGB(height);
+                    int rgb = 0;
+                    if (mode == Mode.BLOCK_MAP) {
+                        rgb = blockData.getColor(height).getRGB();
+                    } else {
+                        rgb = getRGB(height);
+                    }
                     int imageX = x - heightMap.getMinX();
                     int imageY = z - heightMap.getMinZ();
                     image.setRGB(imageX, imageY, rgb);
