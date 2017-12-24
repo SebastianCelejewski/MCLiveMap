@@ -8,10 +8,15 @@ This program takes the following input:
 
 This is going to be a part of a web page that will show current map of Świat Celejewskich minecraft server along with positions of all players.
 
-Result of the very, very, very early version of this program looks like this:
-
-![screenshot](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/screenshot.jpeg)
-
 This is a fragment of the Świat Celejewskich world depicted on that map:
 
 ![game_view](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/game_view.jpeg)
+
+Result of the "height-map" mode:
+
+![screenshot](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/screenshot.jpeg)
+
+Result of the "block-map" mode:
+
+![screenshot](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/screenshot-2.jpeg)
+
