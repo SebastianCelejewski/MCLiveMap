@@ -1,12 +1,12 @@
 package pl.sebcel.mclivemap;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.zip.Inflater;
+import java.util.ArrayList;
+import java.util.Date;
 
 import com.flowpowered.nbt.CompoundMap;
 import com.flowpowered.nbt.Tag;
@@ -14,16 +14,23 @@ import com.flowpowered.nbt.stream.NBTInputStream;
 
 public class NBTUtils {
 
+    private Decompressor decompressor = new Decompressor();
+
     public HeightMap loadTerrainData(String worldDirectory, int[][] regionIds) throws Exception {
         System.out.println("Loading terrain data from " + worldDirectory);
+        long startTime = new Date().getTime();
+
         HeightMap heightMap = new HeightMap();
         for (int regionIdx = 0; regionIdx < regionIds.length; regionIdx++) {
             int regionX = regionIds[regionIdx][0];
             int regionZ = regionIds[regionIdx][1];
             loadHeightData(worldDirectory, heightMap, regionX, regionZ);
         }
-        
-        System.out.println("  - Loaded terrain data for " + heightMap.getMinX() + "<x<" + heightMap.getMaxX() + " and " + heightMap.getMinZ() + "<z<" + heightMap.getMaxZ());
+
+        System.out.println(" - Loaded terrain data for " + heightMap.getMinX() + "<x<" + heightMap.getMaxX() + " and " + heightMap.getMinZ() + "<z<" + heightMap.getMaxZ());
+
+        long endTime = new Date().getTime();
+        System.out.println(" - Time: " + (endTime - startTime) + " ms");
 
         return heightMap;
     }
@@ -44,8 +51,7 @@ public class NBTUtils {
                 }
                 int chunkLengthInBytes = getChunkLength(regionData, chunkOffset);
 
-                byte[] decompressedChunkData = decompress(regionData, chunkOffset + 5, chunkLengthInBytes);
-
+                byte[] decompressedChunkData = decompressor.decompress(regionData, chunkOffset + 5, chunkLengthInBytes);
                 Tag<?> t = deserializeTags(decompressedChunkData);
 
                 CompoundMap child = (CompoundMap) t.getValue();
@@ -73,21 +79,6 @@ public class NBTUtils {
 
     private int getChunkLength(byte[] regionData, int chunkOffset) {
         return Byte.toUnsignedInt(regionData[chunkOffset]) * 256 * 256 * 256 + Byte.toUnsignedInt(regionData[chunkOffset + 1]) * 256 * 256 + Byte.toUnsignedInt(regionData[chunkOffset + 2]) * 256 + Byte.toUnsignedInt(regionData[chunkOffset + 3]);
-    }
-
-    private byte[] decompress(byte[] input, int offset, int length) throws Exception {
-        Inflater decompressor = new Inflater();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        decompressor.setInput(input, offset, length);
-        int readBytes = -1;
-        while (readBytes != 0) {
-            readBytes = decompressor.inflate(buffer);
-            out.write(buffer, 0, readBytes);
-        }
-        out.close();
-
-        return out.toByteArray();
     }
 
     private Tag<?> deserializeTags(byte[] chunkData) throws Exception {
