@@ -23,5 +23,12 @@ public class PlayerData {
     public void addLocation(PlayerLocation location) {
         this.locations.add(location);
     }
-
+    
+    public PlayerLocation getLastLocation() {
+        if (locations.size() > 0) {
+            return locations.get(locations.size() -1);
+        } else {
+            return null;
+        }
+    }
 }

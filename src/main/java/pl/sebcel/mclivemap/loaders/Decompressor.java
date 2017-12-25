@@ -1,4 +1,4 @@
-package pl.sebcel.mclivemap;
+package pl.sebcel.mclivemap.loaders;
 
 import java.io.ByteArrayOutputStream;
 import java.util.zip.Inflater;

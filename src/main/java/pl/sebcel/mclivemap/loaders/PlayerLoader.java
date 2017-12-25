@@ -1,4 +1,4 @@
-package pl.sebcel.mclivemap;
+package pl.sebcel.mclivemap.loaders;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -9,30 +9,30 @@ import java.util.List;
 import pl.sebcel.mclivemap.domain.PlayerData;
 import pl.sebcel.mclivemap.domain.PlayerLocation;
 
-public class LocationUtils {
+public class PlayerLoader {
 
-    public List<PlayerData> loadPlayersLocations(String fileLocationsDirectoryPath) {
-        String[] locationFiles = findLocationFiles(fileLocationsDirectoryPath);
+    public List<PlayerData> loadPlayersData(String locationFilesDirectoryPath) {
+        String[] locationFiles = findLocationFiles(locationFilesDirectoryPath);
 
         List<PlayerData> playersData = new ArrayList<>();
 
         for (String locationFile : locationFiles) {
-            playersData.add(loadPlayerLocations(fileLocationsDirectoryPath + File.separator + locationFile));
+            playersData.add(loadPlayerLocations(locationFilesDirectoryPath + File.separator + locationFile));
         }
 
         return playersData;
     }
 
-    private String[] findLocationFiles(String fileLocationsDirectoryPath) {
-        System.out.println("Looking for player location files in " + fileLocationsDirectoryPath);
-        File locationFilesDirectory = new File(fileLocationsDirectoryPath);
+    private String[] findLocationFiles(String locationFilesDirectoryPath) {
+        System.out.println("Looking for player location files in " + locationFilesDirectoryPath);
+        File locationFilesDirectory = new File(locationFilesDirectoryPath);
 
         if (!locationFilesDirectory.exists()) {
-            throw new RuntimeException("Directory " + fileLocationsDirectoryPath + " does not exist");
+            throw new RuntimeException("Directory " + locationFilesDirectoryPath + " does not exist");
         }
 
         if (!locationFilesDirectory.isDirectory()) {
-            throw new RuntimeException(fileLocationsDirectoryPath + " is not a directory");
+            throw new RuntimeException(locationFilesDirectoryPath + " is not a directory");
         }
 
         String[] locationFiles = locationFilesDirectory.list((dir, name) -> name.startsWith("location-") && name.endsWith(".csv"));
@@ -61,10 +61,9 @@ public class LocationUtils {
             }
 
             return playerData;
-            
+
         } catch (Exception ex) {
             throw new RuntimeException("Failed to load player location data from " + locationFilePath + ": " + ex.getMessage(), ex);
         }
-
     }
 }
