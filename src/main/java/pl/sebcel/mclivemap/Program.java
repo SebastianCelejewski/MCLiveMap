@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
+
 import pl.sebcel.mclivemap.domain.PlayerData;
 import pl.sebcel.mclivemap.domain.PlayerLocation;
 import pl.sebcel.mclivemap.domain.Region;
@@ -48,43 +50,19 @@ public class Program {
         String locationsDirectory = args[1];
         String outputDirectory = args[2];
 
+        verifyDirectory(worldDirectory);
+        verifyDirectory(locationsDirectory);
+        verifyDirectory(outputDirectory);
+
         BlockData blockData = blockDataLoader.loadBlockData("vanilla_ids.json");
         List<PlayerData> playersData = playerLoader.loadPlayersData(locationsDirectory);
 
-        if (!new File(outputDirectory).exists()) {
-            System.err.println("Output directory " + outputDirectory + " does not exist");
-            System.exit(255);
-        }
-        if (!new File(outputDirectory).isDirectory()) {
-            System.out.println(outputDirectory + " is not a directory");
-            System.exit(255);
-        }
-
         long startTime = new Date().getTime();
 
-        Set<RegionCoordinates> allRegionsToBeLoaded = new HashSet<>();
-        for (PlayerData playerData : playersData) {
-            PlayerLocation playerLocation = playerData.getLastLocation();
-            RegionCoordinates regionCoordinates = RegionCoordinates.fromPlayerLocation(playerLocation);
-            allRegionsToBeLoaded.add(regionCoordinates);
-            allRegionsToBeLoaded.add(regionCoordinates.left());
-            allRegionsToBeLoaded.add(regionCoordinates.left().up());
-            allRegionsToBeLoaded.add(regionCoordinates.left().down());
-            allRegionsToBeLoaded.add(regionCoordinates.right());
-            allRegionsToBeLoaded.add(regionCoordinates.right().up());
-            allRegionsToBeLoaded.add(regionCoordinates.right().down());
-            allRegionsToBeLoaded.add(regionCoordinates.up());
-            allRegionsToBeLoaded.add(regionCoordinates.down());
-        }
-
-        Map<RegionCoordinates, BufferedImage> regionImages = new HashMap<>();
+        Set<RegionCoordinates> allRegionsToBeLoaded = calculateAllRegionsToBeLoaded(playersData);
 
         System.out.println("Loading terrain");
-        for (RegionCoordinates regionCoordinates : allRegionsToBeLoaded) {
-            Region region = regionLoader.loadRegion(worldDirectory, regionCoordinates);
-            BufferedImage regionImage = terrainRenderer.renderTerrain(region, blockData);
-            regionImages.put(regionCoordinates, regionImage);
-        }
+        Map<RegionCoordinates, BufferedImage> regionImages = loadRegionImages(allRegionsToBeLoaded, worldDirectory, blockData);
 
         System.out.println("Creating maps");
         for (PlayerData playerData : playersData) {
@@ -131,6 +109,79 @@ public class Program {
         long duration = endTime - startTime;
 
         System.out.println("Done. Duration: " + duration / 1000 + " seconds.");
+    }
+
+    private void verifyDirectory(String directory) {
+        if (!new File(directory).exists()) {
+            System.err.println("Directory " + directory + " does not exist");
+            System.exit(255);
+        }
+        if (!new File(directory).isDirectory()) {
+            System.out.println(directory + " is not a directory");
+            System.exit(255);
+        }
+    }
+
+    private Set<RegionCoordinates> calculateAllRegionsToBeLoaded(List<PlayerData> playersData) {
+        Set<RegionCoordinates> allRegionsToBeLoaded = new HashSet<>();
+        for (PlayerData playerData : playersData) {
+            PlayerLocation playerLocation = playerData.getLastLocation();
+            RegionCoordinates regionCoordinates = RegionCoordinates.fromPlayerLocation(playerLocation);
+            allRegionsToBeLoaded.add(regionCoordinates);
+            allRegionsToBeLoaded.add(regionCoordinates.left());
+            allRegionsToBeLoaded.add(regionCoordinates.left().up());
+            allRegionsToBeLoaded.add(regionCoordinates.left().down());
+            allRegionsToBeLoaded.add(regionCoordinates.right());
+            allRegionsToBeLoaded.add(regionCoordinates.right().up());
+            allRegionsToBeLoaded.add(regionCoordinates.right().down());
+            allRegionsToBeLoaded.add(regionCoordinates.up());
+            allRegionsToBeLoaded.add(regionCoordinates.down());
+        }
+
+        return allRegionsToBeLoaded;
+    }
+
+    private Map<RegionCoordinates, BufferedImage> loadRegionImages(Set<RegionCoordinates> allRegionsToBeLoaded, String worldDirectory, BlockData blockData) {
+        Map<RegionCoordinates, BufferedImage> result = new HashMap<>();
+
+        for (RegionCoordinates regionCoordinates : allRegionsToBeLoaded) {
+            String fileName = "region." + regionCoordinates.getRegionX() + "." + regionCoordinates.getRegionZ() + ".png";
+            BufferedImage regionImage;
+
+            File imageFile = new File(fileName);
+            if (imageCanBeReused(imageFile)) {
+                try {
+                    System.out.println(" - Loading region " + regionCoordinates + " from saved files");
+                    regionImage = ImageIO.read(imageFile);
+                } catch (Exception ex) {
+                    throw new RuntimeException("Failed to load region image from " + imageFile.getAbsolutePath() + ": " + ex.getMessage(), ex);
+                }
+            } else {
+                Region region = regionLoader.loadRegion(worldDirectory, regionCoordinates);
+                regionImage = terrainRenderer.renderTerrain(region, blockData);
+                try {
+                    ImageIO.write(regionImage, "png", imageFile);
+                } catch (Exception ex) {
+                    throw new RuntimeException("Failed to save region image to " + imageFile.getAbsolutePath() + ": " + ex.getMessage());
+                }
+            }
+
+            result.put(regionCoordinates, regionImage);
+        }
+
+        return result;
+    }
+
+    private boolean imageCanBeReused(File imageFile) {
+        if (!imageFile.exists()) {
+            return false;
+        }
+
+        long currentTime = new Date().getTime();
+        long imageCreationTime = imageFile.lastModified();
+        long imageFileAge = currentTime - imageCreationTime;
+
+        return imageFileAge < 15 * 60 * 1000;
     }
 
     private void saveFile(String filePath, byte[] fileContent) {
