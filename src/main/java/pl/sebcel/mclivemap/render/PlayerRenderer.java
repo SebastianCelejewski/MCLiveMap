@@ -31,22 +31,41 @@ public class PlayerRenderer {
                 int x = location.getX();
                 int z = location.getZ();
 
-                if (dimension == 0) {
-                    int imageX = x - worldMap.getMinX();
-                    int imageY = z - worldMap.getMinZ();
-                    if (previousImageX != null) {
-                        g.drawLine(previousImageX, previousImageY, imageX, imageY);
-                    }
-                    previousImageX = imageX;
-                    previousImageY = imageY;
-                } else {
+                int imageX = x - worldMap.getMinX();
+                int imageY = z - worldMap.getMinZ();
+
+                // Entered Nether - stop drawing
+                if (dimension != 0) {
                     previousImageX = null;
                     previousImageY = null;
+                    continue;
                 }
+
+                // Too long jump (death and respawn) - stop drawing
+                if (previousImageX != null && getDistance(imageX, imageY, previousImageX, previousImageY) > 50) {
+                    previousImageX = null;
+                    previousImageY = null;
+                    continue;
+                }
+
+                if (previousImageX != null) {
+                    g.drawLine(previousImageX, previousImageY, imageX, imageY);
+                }
+
+                previousImageX = imageX;
+                previousImageY = imageY;
+
             }
             if (previousImageX != null) {
+                g.fillOval(previousImageX - 2, previousImageY - 2, 5, 5);
                 g.drawString(playerData.getName(), previousImageX, previousImageY);
             }
         }
+    }
+
+    private int getDistance(int x1, int y1, int x2, int y2) {
+        int dx = x2 - x1;
+        int dy = y2 - y2;
+        return (int) Math.sqrt(dx * dx + dy * dy);
     }
 }
