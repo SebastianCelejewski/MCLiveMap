@@ -3,6 +3,8 @@ package pl.sebcel.mclivemap;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import pl.sebcel.mclivemap.domain.PlayerData;
@@ -41,21 +43,35 @@ public class Program {
 
         BlockData blockData = blockDataLoader.loadBlockData("vanilla_ids.json");
         List<PlayerData> playersData = playerLoader.loadPlayersData(locationsDirectory);
+        
+        long startTime = new Date().getTime();
 
         for (PlayerData playerData : playersData) {
             PlayerLocation playerLocation = playerData.getLastLocation();
             RegionCoordinates regionCoordinates = RegionCoordinates.fromPlayerLocation(playerLocation);
+            List<RegionCoordinates> regionsCoordinatesForMap = new ArrayList<>();
+            regionsCoordinatesForMap.add(regionCoordinates);
+            regionsCoordinatesForMap.add(regionCoordinates.left());
+            regionsCoordinatesForMap.add(regionCoordinates.left().up());
+            regionsCoordinatesForMap.add(regionCoordinates.left().down());
+            regionsCoordinatesForMap.add(regionCoordinates.right());
+            regionsCoordinatesForMap.add(regionCoordinates.right().up());
+            regionsCoordinatesForMap.add(regionCoordinates.right().down());
+            regionsCoordinatesForMap.add(regionCoordinates.up());
+            regionsCoordinatesForMap.add(regionCoordinates.down());
 
-            int minX = regionCoordinates.getMinX();
-            int maxX = regionCoordinates.getMaxX();
-            int minZ = regionCoordinates.getMinZ();
-            int maxZ = regionCoordinates.getMaxZ();
+            int minX = regionCoordinates.getMinX() - 256;
+            int maxX = regionCoordinates.getMaxX() + 256;
+            int minZ = regionCoordinates.getMinZ() - 256;
+            int maxZ = regionCoordinates.getMaxZ() + 256;
 
             WorldMap worldMap = new WorldMap(minX, maxX, minZ, maxZ);
 
-            Region region = regionLoader.loadRegion(worldDirectory, regionCoordinates);
+            List<Region> regions = regionLoader.loadRegions(worldDirectory, regionsCoordinatesForMap);
 
-            terrainRenderer.renderTerrain(worldMap, region, mode, blockData);
+            for (Region region : regions) {
+                terrainRenderer.renderTerrain(worldMap, region, mode, blockData);
+            }
             playerRenderer.renderPlayers(worldMap, playersData);
 
             byte[] mapImage = worldMap.getImage();
@@ -63,7 +79,10 @@ public class Program {
             saveFile(fileName, mapImage);
         }
 
-        System.out.println("Done.");
+        long endTime = new Date().getTime();
+        long duration = endTime - startTime;
+        
+        System.out.println("Done. Duration: " + duration/1000 + " seconds.");
     }
 
     private void saveFile(String filePath, byte[] fileContent) {

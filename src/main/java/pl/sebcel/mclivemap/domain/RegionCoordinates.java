@@ -51,4 +51,20 @@ public class RegionCoordinates {
     public String toString() {
         return "(" + regionX + "," + regionZ + ")";
     }
+    
+    public RegionCoordinates left() {
+        return new RegionCoordinates(regionX - 1, regionZ);
+    }
+    
+    public RegionCoordinates right() {
+        return new RegionCoordinates(regionX + 1, regionZ);
+    }
+    
+    public RegionCoordinates up() {
+        return new RegionCoordinates(regionX, regionZ -1);
+    }
+    
+    public RegionCoordinates down() {
+        return new RegionCoordinates(regionX,  regionZ + 1);
+    }
 }

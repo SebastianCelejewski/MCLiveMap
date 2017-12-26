@@ -24,6 +24,14 @@ public class RegionLoader {
 
     private Decompressor decompressor = new Decompressor();
 
+    public List<Region> loadRegions(String worldDirectory, List<RegionCoordinates> regionsCoordinates) {
+        List<Region> result = new ArrayList<>();
+        for (RegionCoordinates regionCoordinates : regionsCoordinates) {
+            result.add(loadRegion(worldDirectory, regionCoordinates));
+        }
+        return result;
+    }
+
     public Region loadRegion(String worldDirectory, RegionCoordinates regionCoordinates) {
         String fileName = "r." + regionCoordinates.getRegionX() + "." + regionCoordinates.getRegionZ() + ".mca";
         String fullPath = worldDirectory + File.separator + "world" + File.separator + "region" + File.separator + fileName;
