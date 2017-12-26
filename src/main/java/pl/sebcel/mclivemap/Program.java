@@ -186,7 +186,7 @@ public class Program {
 
     private void saveFile(String filePath, byte[] fileContent) {
         try {
-            Files.write(Paths.get(filePath), fileContent, StandardOpenOption.CREATE);
+            Files.write(Paths.get(filePath), fileContent, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to save file " + filePath + ": " + ex.getMessage(), ex);
         }

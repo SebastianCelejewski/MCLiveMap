@@ -3,7 +3,9 @@ package pl.sebcel.mclivemap.loaders;
 import java.awt.Color;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -13,6 +15,20 @@ import pl.sebcel.mclivemap.BlockData;
 import pl.sebcel.mclivemap.domain.Block;
 
 public class BlockDataLoader {
+    
+    private List<Integer> transparentButRendered = new ArrayList<>();
+    
+    public BlockDataLoader() {
+        transparentButRendered.add(6); // sapling
+        transparentButRendered.add(8); // flowing water
+        transparentButRendered.add(9); // water
+        transparentButRendered.add(10); // lava
+        transparentButRendered.add(11); // lava
+        transparentButRendered.add(18); // oak leaves
+        transparentButRendered.add(78); // snow
+        transparentButRendered.add(79); // ice
+        transparentButRendered.add(161); //acacia leaves
+    }
 
     public BlockData loadBlockData(String blockDataFilePath) {
         System.out.println("Loading Minecraft block data from " + blockDataFilePath);
@@ -36,6 +52,9 @@ public class BlockDataLoader {
 
         int id = o.getInt("id");
         boolean isTransparent = o.optBoolean("transparent");
+        if (transparentButRendered.contains(id)) {
+            isTransparent = false;
+        }
         String colorCode = o.optString("color");
         String name = o.getString("name");
         Color color = getColor(colorCode);
