@@ -21,7 +21,7 @@ public class WorldMap {
         this.maxX = maxX;
         this.minZ = minZ;
         this.maxZ = maxZ;
-        
+
         int width = maxX - minX;
         int height = maxZ - minZ;
 
@@ -33,7 +33,19 @@ public class WorldMap {
             int mapX = x - minX;
             int mapY = z - minZ;
             image.setRGB(mapX, mapY, color.getRGB());
-        } 
+        }
+    }
+
+    public void setImage(BufferedImage pastedImage, int imageMinX, int imageMinZ) {
+        // totally lame, but image.getGraphics().drawImage(...) does not work
+        int localX = imageMinX - minX;
+        int localY = imageMinZ - minZ;
+        for (int x = 0; x < 512; x++) {
+            for (int y = 0; y < 512; y++) {
+                image.setRGB(localX + x, localY + y, pastedImage.getRGB(x, y));
+            }
+        }
+        // this.image.getGraphics().drawImage(image, 0, 0, null);
     }
 
     public byte[] getImage() {
@@ -45,13 +57,13 @@ public class WorldMap {
             throw new RuntimeException("Failed to render image into png file: " + ex.getMessage(), ex);
         }
     }
-    
+
     public Graphics getGraphics() {
         return image.getGraphics();
     }
 
     /* To be removed! */
-    
+
     public int getMinX() {
         return minX;
     }
@@ -67,6 +79,5 @@ public class WorldMap {
     public int getMaxZ() {
         return maxZ;
     }
-    
-    
+
 }

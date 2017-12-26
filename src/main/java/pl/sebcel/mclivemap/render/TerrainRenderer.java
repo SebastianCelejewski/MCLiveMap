@@ -1,76 +1,49 @@
 package pl.sebcel.mclivemap.render;
 
 import java.awt.Color;
-import java.util.Map;
+import java.awt.image.BufferedImage;
 
 import pl.sebcel.mclivemap.BlockData;
 import pl.sebcel.mclivemap.domain.Chunk;
 import pl.sebcel.mclivemap.domain.Region;
-import pl.sebcel.mclivemap.domain.WorldMap;
 
 public class TerrainRenderer {
 
-    public static enum Mode {
-        HEIGHT_MAP("height"), BLOCK_MAP("block");
+    public BufferedImage renderTerrain(Region region, BlockData blockData) {
+        System.out.println(" - Rendering terrain for region " + region.getCoordinates());
 
-        String shortName;
+        int minX = region.getCoordinates().getMinX();
+        int minZ = region.getCoordinates().getMinZ();
 
-        Mode(String shortName) {
-            this.shortName = shortName;
-        }
+        BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
 
-        public static Mode fromString(String shortName) {
-            for (Mode m : Mode.values()) {
-                if (m.shortName.equals(shortName)) {
-                    return m;
-                }
-            }
-            throw new RuntimeException("Unknown mode: " + shortName);
-        }
-    }
-
-    public void renderTerrain(WorldMap worldMap, Region region, Mode mode, BlockData blockData) {
-        System.out.println("Rendering region " + region.getCoordinates());
         for (Chunk chunk : region.getChunks()) {
             int chunkX = chunk.getChunkX();
             int chunkZ = chunk.getChunkZ();
 
-            if (mode == Mode.HEIGHT_MAP) {
-                int[] heightMap = chunk.getHeightMap();
-                for (int x = 0; x < 16; x++) {
-                    for (int z = 0; z < 16; z++) {
-                        int height = heightMap[x + 16 * z];
-                        Color color = getColor(height);
-                        worldMap.setPixel(chunkX * 16 + x, chunkZ * 16 + z, color);
-                    }
-                }
-            }
+            int[] heightMap = chunk.getHeightMap();
+            byte[] blocks = chunk.getBlocks();
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    int height = heightMap[x + 16 * z];
 
-            if (mode == Mode.BLOCK_MAP) {
-                Map<Integer, byte[]> sections = chunk.getSections();
-                for (Map.Entry<Integer, byte[]> section : sections.entrySet()) {
-                    byte[] blockIds = section.getValue();
-                    for (int y = 0; y < 16; y++) {
-                        for (int x = 0; x < 16; x++) {
-                            for (int z = 0; z < 16; z++) {
-                                int v = blockIds[x + 16 * z + 16 * 16 * y];
-                                if (!blockData.isTransparent(v)) {
-                                    Color color = blockData.getColor(v);
-                                    worldMap.setPixel(chunkX * 16 + x, chunkZ * 16 + z, color);
-                                }
-                            }
+                    boolean foundNonTransparent = false;
+                    while (!foundNonTransparent && height >= 0) {
+                        int blockId = blocks[x + 16 * z + 16 * 16 * height];
+                        if (!blockData.isTransparent(blockId)) {
+                            Color color = blockData.getColor(blockId);
+                            int imageX = chunkX * 16 + x - minX;
+                            int imageY = chunkZ * 16 + z - minZ;
+                            image.setRGB(imageX, imageY, color.getRGB());
+                            foundNonTransparent = true;
+                        } else {
+                            height--;
                         }
                     }
                 }
             }
-
         }
-    }
 
-    private Color getColor(int height) {
-        int red = height;
-        int green = 255 - height;
-        int blue = 0;
-        return new Color(red, green, blue);
+        return image;
     }
 }

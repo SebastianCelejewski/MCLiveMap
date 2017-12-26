@@ -6,12 +6,13 @@ repositories {
 
 dependencies {
     compile "com.flowpowered:flow-nbt:1.0.0"
-    compile group: 'org.json', name: 'json', version: '20171018'
+    compile "org.json:json:20171018"
+    compile "org.apache.velocity:velocity:1.6.2"
 }
 
 jar {
     manifest {
         attributes 'Main-Class': 'pl.sebcel.mclivemap.Program'
-        attributes 'Class-Path': 'flow-nbt-1.0.0.jar'
+        attributes 'Class-Path': 'flow-nbt-1.0.0.jar json-20171018.jar velocity-1.6.2.jar commons-collections-3.2.1.jar commons-lang-2.4.jar'
     }
 }

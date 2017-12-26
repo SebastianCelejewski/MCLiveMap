@@ -23,7 +23,7 @@ import pl.sebcel.mclivemap.domain.RegionCoordinates;
 public class RegionLoader {
 
     private Decompressor decompressor = new Decompressor();
-
+    
     public List<Region> loadRegions(String worldDirectory, List<RegionCoordinates> regionsCoordinates) {
         List<Region> result = new ArrayList<>();
         for (RegionCoordinates regionCoordinates : regionsCoordinates) {
@@ -61,23 +61,27 @@ public class RegionLoader {
                 Chunk chunk = new Chunk(chunkX, chunkZ);
                 chunk.setHeightMap(heightMap);
 
-                Map<Integer, byte[]> sections = new HashMap<>();
+                byte[] blocks = new byte[16*16*256];
+
                 ListTag sectionsTag = (ListTag) levelTag.get("Sections");
                 List<CompoundTag> sectionsTags = sectionsTag.getValue();
                 for (CompoundTag section : sectionsTags) {
                     byte yPos = ((Tag<Byte>) section.getValue().get("Y")).getValue();
-                    byte[] blockIds = (byte[]) section.getValue().get("Blocks").getValue();
-                    sections.put((int) yPos, blockIds);
+                    byte[] sectionBlockIds = (byte[]) section.getValue().get("Blocks").getValue();
+                    for (int idx = 0; idx < sectionBlockIds.length; idx++) {
+                        blocks[idx + yPos * 4096] = sectionBlockIds[idx];
+                    }
                 }
 
-                chunk.setSections(sections);
+                chunk.setBlocks(blocks);
                 chunks.add(chunk);
             } catch (Exception ex) {
                 System.err.println("Failed to load height data: " + ex.getMessage() + "\nFile: " + fullPath + "\nidx: " + i);
             }
         }
 
-        return new Region(regionCoordinates, chunks);
+        Region region = new Region(regionCoordinates, chunks);
+        return region;
     }
 
     private byte[] loadFile(String filePath) {

@@ -9,9 +9,9 @@ import pl.sebcel.mclivemap.domain.PlayerLocation;
 import pl.sebcel.mclivemap.domain.WorldMap;
 
 public class PlayerRenderer {
-    
+
     private final static Color[] COLOR_TABLE = new Color[] { Color.BLACK, Color.BLUE, Color.RED, Color.GREEN, Color.DARK_GRAY };
-    
+
     public void renderPlayers(WorldMap worldMap, List<PlayerData> playersData) {
         Graphics g = worldMap.getGraphics();
 
@@ -20,23 +20,25 @@ public class PlayerRenderer {
             Integer previousImageX = null;
             Integer previousImageY = null;
             g.setColor(COLOR_TABLE[colourIdx++]);
-            for (PlayerLocation location : playerData.getLocations()) {
+
+            List<PlayerLocation> locations = playerData.getLocations();
+            if (locations.size() > 100) {
+                locations = locations.subList(locations.size() - 100, locations.size());
+            }
+
+            for (PlayerLocation location : locations) {
                 int dimension = location.getDimension();
                 int x = location.getX();
                 int z = location.getZ();
 
                 if (dimension == 0) {
-//                    if (x > heightMap.getMinX() && x < heightMap.getMaxX()) {
-//                        if (z > heightMap.getMinZ() && z < heightMap.getMaxZ()) {
-                            int imageX = x - worldMap.getMinX();
-                            int imageY = z - worldMap.getMinZ();
-                            if (previousImageX != null) {
-                                g.drawLine(previousImageX, previousImageY, imageX, imageY);
-                            }
-                            previousImageX = imageX;
-                            previousImageY = imageY;
-//                        }
-//                    }
+                    int imageX = x - worldMap.getMinX();
+                    int imageY = z - worldMap.getMinZ();
+                    if (previousImageX != null) {
+                        g.drawLine(previousImageX, previousImageY, imageX, imageY);
+                    }
+                    previousImageX = imageX;
+                    previousImageY = imageY;
                 } else {
                     previousImageX = null;
                     previousImageY = null;

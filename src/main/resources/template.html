@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta http-equiv="refresh" content="5" />
+</head>
+<body>
+	<h1>Świat Celejewskich</h1>
+	#foreach($player in $players)
+	<p>${player.name}</p>
+	<a href="map-${player.name}.png"><img src="map-${player.name}.png" style="width: 100px; height: 100px;"></img></a>
+	#end
+</body>
+</html>

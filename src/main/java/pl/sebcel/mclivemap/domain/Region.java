@@ -19,4 +19,8 @@ public class Region {
     public List<Chunk> getChunks() {
         return chunks;
     }
+    
+    public void release() {
+        chunks = null;
+    }
 }
