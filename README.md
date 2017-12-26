@@ -8,11 +8,11 @@ This program takes the following input:
 
 This is going to be a part of a web page that will show current map of Świat Celejewskich minecraft server along with positions of all players.
 
-This is a fragment of the Świat Celejewskich world depicted on that map:
-
-![game_view](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/game_view.jpeg)
-
-Result of map rendering:
+Sample result:
 
 ![screenshot](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/screenshot.jpeg)
+
+This is a fragment of the Świat Celejewskich world depicted on one of those maps:
+
+![game_view](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/game_view.jpeg)
 
