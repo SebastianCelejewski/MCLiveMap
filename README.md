@@ -12,11 +12,7 @@ This is a fragment of the Świat Celejewskich world depicted on that map:
 
 ![game_view](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/game_view.jpeg)
 
-Result of the "height-map" mode:
+Result of map rendering:
 
 ![screenshot](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/screenshot.jpeg)
-
-Result of the "block-map" mode:
-
-![screenshot](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/screenshot-2.jpeg)
 
