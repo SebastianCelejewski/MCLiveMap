@@ -22,9 +22,6 @@ public class PlayerRenderer {
             g.setColor(COLOR_TABLE[colourIdx++]);
 
             List<PlayerLocation> locations = playerData.getLocations();
-            if (locations.size() > 100) {
-                locations = locations.subList(locations.size() - 100, locations.size());
-            }
 
             for (PlayerLocation location : locations) {
                 int dimension = location.getDimension();

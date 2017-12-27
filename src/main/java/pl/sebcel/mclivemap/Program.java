@@ -98,6 +98,7 @@ public class Program {
 
             byte[] mapImage = worldMap.getImage();
             String fileName = outputDirectory + File.separator + "map-" + playerData.getName() + ".png";
+            System.out.println("   - Saving rendered map to " + fileName);
             saveFile(fileName, mapImage);
         }
 
