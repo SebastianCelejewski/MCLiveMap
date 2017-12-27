@@ -10,12 +10,18 @@ import pl.sebcel.mclivemap.domain.Region;
 public class TerrainRenderer {
 
     public BufferedImage renderTerrain(Region region, BlockData blockData) {
+        BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
+
+        if (region == null) {
+            System.out.println("Returning empty image for null region");
+            return image;
+        }
+
         System.out.println(" - Rendering terrain for region " + region.getCoordinates());
 
         int minX = region.getCoordinates().getMinX();
         int minZ = region.getCoordinates().getMinZ();
 
-        BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
 
         for (Chunk chunk : region.getChunks()) {
             int chunkX = chunk.getChunkX();

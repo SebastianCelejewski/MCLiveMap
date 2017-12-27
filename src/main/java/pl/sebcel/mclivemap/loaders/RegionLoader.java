@@ -6,9 +6,7 @@ import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.flowpowered.nbt.CompoundMap;
 import com.flowpowered.nbt.CompoundTag;
@@ -23,21 +21,22 @@ import pl.sebcel.mclivemap.domain.RegionCoordinates;
 public class RegionLoader {
 
     private Decompressor decompressor = new Decompressor();
-    
-    public List<Region> loadRegions(String worldDirectory, List<RegionCoordinates> regionsCoordinates) {
-        List<Region> result = new ArrayList<>();
-        for (RegionCoordinates regionCoordinates : regionsCoordinates) {
-            result.add(loadRegion(worldDirectory, regionCoordinates));
-        }
-        return result;
-    }
 
+    /**
+     * May return null if region does not yet exist
+     */
     public Region loadRegion(String worldDirectory, RegionCoordinates regionCoordinates) {
         String fileName = "r." + regionCoordinates.getRegionX() + "." + regionCoordinates.getRegionZ() + ".mca";
         String fullPath = worldDirectory + File.separator + "world" + File.separator + "region" + File.separator + fileName;
         System.out.println(" - Loading region from " + fullPath);
 
-        byte[] regionData = loadFile(fullPath);
+        byte[] regionData;
+        try {
+            regionData = loadFile(fullPath);
+        } catch (Exception ex) {
+            System.out.println("Could not load region " + regionCoordinates + ": " + ex.getMessage()+". Skipping.");
+            return null;
+        }
 
         List<Chunk> chunks = new ArrayList<>();
 
@@ -61,7 +60,7 @@ public class RegionLoader {
                 Chunk chunk = new Chunk(chunkX, chunkZ);
                 chunk.setHeightMap(heightMap);
 
-                byte[] blocks = new byte[16*16*256];
+                byte[] blocks = new byte[16 * 16 * 256];
 
                 ListTag sectionsTag = (ListTag) levelTag.get("Sections");
                 List<CompoundTag> sectionsTags = sectionsTag.getValue();
