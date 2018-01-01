@@ -2,9 +2,6 @@ package pl.sebcel.mclivemap;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
