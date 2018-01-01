@@ -1,10 +1,12 @@
-package pl.sebcel.mclivemap.domain;
+package pl.sebcel.mclivemap.domain.regioncoordinates;
 
 import org.junit.Test;
 
 import junit.framework.Assert;
+import pl.sebcel.mclivemap.domain.Bounds;
+import pl.sebcel.mclivemap.domain.RegionCoordinates;
 
-public class RegionCoordinatesSpecs {
+public class When_calculating_region_bounds {
 
     private Bounds calculateBounds(int regionX, int regionZ) {
         RegionCoordinates cut = new RegionCoordinates(regionX, regionZ);

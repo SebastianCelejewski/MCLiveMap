@@ -41,14 +41,8 @@ public class RegionCoordinates {
     }
 
     public static RegionCoordinates fromPlayerLocation(PlayerLocation playerLocation) {
-        int regionX = (int) Math.floor(playerLocation.getX() / 512);
-        int regionZ = (int) Math.floor(playerLocation.getZ() / 512);
-        if (playerLocation.getX() < 0) {
-            regionX = regionX - 1;
-        }
-        if (playerLocation.getZ() < 0) {
-            regionZ = regionZ - 1;
-        }
+        int regionX = (int) Math.floor((double) playerLocation.getX() / 512);
+        int regionZ = (int) Math.floor((double) playerLocation.getZ() / 512);
 
         return new RegionCoordinates(regionX, regionZ);
     }
