@@ -1,10 +1,23 @@
 package pl.sebcel.mclivemap.domain;
 
+/**
+ * Identifies a region in Minecraft world
+ * 
+ * @author Sebastian Celejewski
+ */
 public class RegionCoordinates {
 
     private int regionX;
     private int regionZ;
 
+    /**
+     * Creates new instance of Region Coordinates class
+     * 
+     * @param regionX
+     *            horizontal index of a region
+     * @param regionZ
+     *            vertical index of a region
+     */
     public RegionCoordinates(int regionX, int regionZ) {
         this.regionX = regionX;
         this.regionZ = regionZ;
@@ -18,20 +31,13 @@ public class RegionCoordinates {
         return regionZ;
     }
 
-    public int getMinX() {
-        return regionX * 512;
-    }
+    public Bounds getBounds() {
+        int minX = regionX * 512;
+        int maxX = minX + 511;
+        int minZ = regionZ * 512;
+        int maxZ = minZ + 511;
 
-    public int getMaxX() {
-        return getMinX() + 512;
-    }
-
-    public int getMinZ() {
-        return regionZ * 512;
-    }
-
-    public int getMaxZ() {
-        return getMinZ() + 512;
+        return new Bounds(minX, minZ, maxX, maxZ);
     }
 
     public static RegionCoordinates fromPlayerLocation(PlayerLocation playerLocation) {
@@ -45,11 +51,6 @@ public class RegionCoordinates {
         }
 
         return new RegionCoordinates(regionX, regionZ);
-    }
-
-    @Override
-    public String toString() {
-        return "(" + regionX + "," + regionZ + ")";
     }
 
     public RegionCoordinates left() {
@@ -67,7 +68,11 @@ public class RegionCoordinates {
     public RegionCoordinates down() {
         return new RegionCoordinates(regionX, regionZ + 1);
     }
-    
+
+    @Override
+    public String toString() {
+        return "(" + regionX + "," + regionZ + ")";
+    }
 
     @Override
     public int hashCode() {
@@ -93,5 +98,5 @@ public class RegionCoordinates {
             return false;
         return true;
     }
-   
+
 }

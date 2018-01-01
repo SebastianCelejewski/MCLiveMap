@@ -15,6 +15,7 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import pl.sebcel.mclivemap.domain.Bounds;
 import pl.sebcel.mclivemap.domain.PlayerData;
 import pl.sebcel.mclivemap.domain.PlayerLocation;
 import pl.sebcel.mclivemap.domain.Region;
@@ -70,12 +71,13 @@ public class Program {
             PlayerLocation playerLocation = playerData.getLastLocation();
             RegionCoordinates regionCoordinates = RegionCoordinates.fromPlayerLocation(playerLocation);
 
-            int minX = regionCoordinates.getMinX() - 512;
-            int maxX = regionCoordinates.getMaxX() + 512;
-            int minZ = regionCoordinates.getMinZ() - 512;
-            int maxZ = regionCoordinates.getMaxZ() + 512;
-
-            WorldMap worldMap = new WorldMap(minX, maxX, minZ, maxZ);
+            int minX = regionCoordinates.getBounds().getMinX() - 512;
+            int maxX = regionCoordinates.getBounds().getMaxX() + 512;
+            int minZ = regionCoordinates.getBounds().getMinZ() - 512;
+            int maxZ = regionCoordinates.getBounds().getMaxZ() + 512;
+            
+            Bounds mapBounds = new Bounds(minX, minZ, maxX, maxZ);
+            WorldMap worldMap = new WorldMap(mapBounds);
 
             List<RegionCoordinates> regionsToBeDrawn = new ArrayList<>();
             regionsToBeDrawn.add(regionCoordinates);
@@ -91,12 +93,12 @@ public class Program {
             System.out.println("   - Rendering terrain");
             for (RegionCoordinates regCoord : regionsToBeDrawn) {
                 BufferedImage regionImage = regionImages.get(regCoord);
-                worldMap.setImage(regionImage, regCoord.getMinX(), regCoord.getMinZ());
+                worldMap.setImageFragment(regionImage, regCoord.getBounds());
             }
             System.out.println("   - Rendering players");
             playerRenderer.renderPlayers(worldMap, playersData);
 
-            byte[] mapImage = worldMap.getImage();
+            byte[] mapImage = worldMap.getImageAsPNG();
             String fileName = outputDirectory + File.separator + "map-" + playerData.getName() + ".png";
             System.out.println("   - Saving rendered map to " + fileName);
             saveFile(fileName, mapImage);

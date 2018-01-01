@@ -19,8 +19,8 @@ public class TerrainRenderer {
 
         System.out.println(" - Rendering terrain for region " + region.getCoordinates());
 
-        int minX = region.getCoordinates().getMinX();
-        int minZ = region.getCoordinates().getMinZ();
+        int minX = region.getCoordinates().getBounds().getMinX();
+        int minZ = region.getCoordinates().getBounds().getMinZ();
 
 
         for (Chunk chunk : region.getChunks()) {

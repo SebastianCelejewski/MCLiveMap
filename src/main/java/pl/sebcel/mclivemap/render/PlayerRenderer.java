@@ -28,8 +28,8 @@ public class PlayerRenderer {
                 int x = location.getX();
                 int z = location.getZ();
 
-                int imageX = x - worldMap.getMinX();
-                int imageY = z - worldMap.getMinZ();
+                int imageX = x - worldMap.getBounds().getMinX();
+                int imageY = z - worldMap.getBounds().getMinZ();
 
                 // Entered Nether - stop drawing
                 if (dimension != 0) {

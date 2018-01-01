@@ -8,6 +8,7 @@ dependencies {
     compile "com.flowpowered:flow-nbt:1.0.0"
     compile "org.json:json:20171018"
     compile "org.apache.velocity:velocity:1.6.2"
+    testCompile "junit:junit:4.10"
 }
 
 jar {

@@ -1,54 +1,63 @@
 package pl.sebcel.mclivemap.domain;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 
 import javax.imageio.ImageIO;
 
+/**
+ * Represents a single map displayed on a web page
+ * 
+ * @author Sebastian Celejewski
+ */
 public class WorldMap {
 
-    private int minX;
-    private int minZ;
-    private int maxX;
-    private int maxZ;
-
+    private Bounds mapBounds;
     private BufferedImage image;
 
-    public WorldMap(int minX, int maxX, int minZ, int maxZ) {
-        this.minX = minX;
-        this.maxX = maxX;
-        this.minZ = minZ;
-        this.maxZ = maxZ;
-
-        int width = maxX - minX;
-        int height = maxZ - minZ;
-
-        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    /**
+     * Creates new WorldMap instance
+     * 
+     * @param mapBounds
+     *            map bounds (physical coordinates of map edges)
+     */
+    public WorldMap(Bounds mapBounds) {
+        this.mapBounds = mapBounds;
+        image = new BufferedImage(mapBounds.getWidth(), mapBounds.getHeight(), BufferedImage.TYPE_INT_ARGB);
     }
 
-    public void setPixel(int x, int z, Color color) {
-        if (x > minX && x < maxX && z > minZ && z < maxZ) {
-            int mapX = x - minX;
-            int mapY = z - minZ;
-            image.setRGB(mapX, mapY, color.getRGB());
-        }
+    public Bounds getBounds() {
+        return mapBounds;
     }
 
-    public void setImage(BufferedImage pastedImage, int imageMinX, int imageMinZ) {
+    /**
+     * Adds an image that represents a fragment of a map
+     * 
+     * @param pastedImage
+     *            image to be added as a fragment of a map (1 region = 512 x 512 blocks)
+     * @param imageMinX
+     *            coordinate of the left edge of the added fragment
+     * @param imageMinZ
+     *            coordinate of the top edge of the added fragment
+     */
+    public void setImageFragment(BufferedImage pastedImage, Bounds pastedImageBounds) {
         // totally lame, but image.getGraphics().drawImage(...) does not work
-        int localX = imageMinX - minX;
-        int localY = imageMinZ - minZ;
+        int localX = pastedImageBounds.getMinX() - mapBounds.getMinX();
+        int localY = pastedImageBounds.getMinZ() - mapBounds.getMinZ();
         for (int x = 0; x < 512; x++) {
             for (int y = 0; y < 512; y++) {
                 image.setRGB(localX + x, localY + y, pastedImage.getRGB(x, y));
             }
         }
-        // this.image.getGraphics().drawImage(image, 0, 0, null);
     }
 
-    public byte[] getImage() {
+    /**
+     * Returns an image representing the whole map
+     * 
+     * @return PNG image as array of bytes
+     */
+    public byte[] getImageAsPNG() {
         try {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             ImageIO.write(image, "png", output);
@@ -58,26 +67,12 @@ public class WorldMap {
         }
     }
 
+    /**
+     * Returns the Graphics object so that it is possible to add additional elements to the map image, e.g. graphics representing players and their locations
+     * 
+     * @return Graphics object
+     */
     public Graphics getGraphics() {
         return image.getGraphics();
     }
-
-    /* To be removed! */
-
-    public int getMinX() {
-        return minX;
-    }
-
-    public int getMinZ() {
-        return minZ;
-    }
-
-    public int getMaxX() {
-        return maxX;
-    }
-
-    public int getMaxZ() {
-        return maxZ;
-    }
-
 }
