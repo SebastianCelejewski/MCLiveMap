@@ -15,12 +15,8 @@ public class Region {
     public RegionCoordinates getCoordinates() {
         return coordinates;
     }
-    
+
     public List<Chunk> getChunks() {
         return chunks;
-    }
-    
-    public void release() {
-        chunks = null;
     }
 }
