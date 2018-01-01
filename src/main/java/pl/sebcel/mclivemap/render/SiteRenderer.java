@@ -16,9 +16,10 @@ public class SiteRenderer {
     public String renderSite(List<PlayerData> playerData, String templateName) {
         try {
             VelocityEngine velocityEngine = new VelocityEngine();
-            velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath"); 
+            velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
             velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
             Template template = velocityEngine.getTemplate(templateName);
+
             VelocityContext context = new VelocityContext();
             context.put("players", playerData);
             StringWriter out = new StringWriter();

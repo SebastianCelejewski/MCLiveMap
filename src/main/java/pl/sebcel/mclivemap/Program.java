@@ -24,6 +24,7 @@ import pl.sebcel.mclivemap.loaders.RegionLoader;
 import pl.sebcel.mclivemap.render.PlayerRenderer;
 import pl.sebcel.mclivemap.render.SiteRenderer;
 import pl.sebcel.mclivemap.render.TerrainRenderer;
+import pl.sebcel.mclivemap.utils.FileUtils;
 
 public class Program {
 
@@ -106,12 +107,12 @@ public class Program {
             byte[] mapImage = worldMap.getImageAsPNG();
             String fileName = outputDirectory + File.separator + "map-" + playerData.getName() + ".png";
             System.out.println("   - Saving rendered map to " + fileName);
-            saveFile(fileName, mapImage);
+            FileUtils.saveFile(fileName, mapImage);
         }
 
         System.out.println("Rendering site");
         String site = siteRenderer.renderSite(playersData, "template.html");
-        saveFile(outputDirectory + File.separator + "index.html", site);
+        FileUtils.saveFile(outputDirectory + File.separator + "index.html", site);
 
         long endTime = new Date().getTime();
         long duration = endTime - startTime;
@@ -155,19 +156,4 @@ public class Program {
         return allRegionsToBeLoaded;
     }
 
-    private void saveFile(String filePath, byte[] fileContent) {
-        try {
-            Files.write(Paths.get(filePath), fileContent, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to save file " + filePath + ": " + ex.getMessage(), ex);
-        }
-    }
-
-    private void saveFile(String filePath, String contents) {
-        try {
-            saveFile(filePath, contents.getBytes("UTF-8"));
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to save file " + filePath + ": " + ex.getMessage(), ex);
-        }
-    }
 }
