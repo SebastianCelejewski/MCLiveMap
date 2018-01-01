@@ -1,4 +1,4 @@
-package pl.sebcel.mclivemap.domain.regioncoordinates;
+package pl.sebcel.mclivemap.domain.RegionCoordinatesSpecs;
 
 import org.junit.Test;
 
