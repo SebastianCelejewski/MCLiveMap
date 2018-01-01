@@ -7,22 +7,19 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
-
 import pl.sebcel.mclivemap.domain.Bounds;
 import pl.sebcel.mclivemap.domain.PlayerData;
 import pl.sebcel.mclivemap.domain.PlayerLocation;
-import pl.sebcel.mclivemap.domain.Region;
 import pl.sebcel.mclivemap.domain.RegionCoordinates;
 import pl.sebcel.mclivemap.domain.WorldMap;
 import pl.sebcel.mclivemap.loaders.BlockDataLoader;
 import pl.sebcel.mclivemap.loaders.PlayerLoader;
+import pl.sebcel.mclivemap.loaders.RegionImageLoader;
 import pl.sebcel.mclivemap.loaders.RegionLoader;
 import pl.sebcel.mclivemap.render.PlayerRenderer;
 import pl.sebcel.mclivemap.render.SiteRenderer;
@@ -36,6 +33,7 @@ public class Program {
     private TerrainRenderer terrainRenderer = new TerrainRenderer();
     private PlayerRenderer playerRenderer = new PlayerRenderer();
     private SiteRenderer siteRenderer = new SiteRenderer();
+    private RegionImageLoader regionImageLoader = new RegionImageLoader();
 
     public static void main(String[] args) {
         new Program().run(args);
@@ -50,10 +48,17 @@ public class Program {
         String worldDirectory = args[0];
         String locationsDirectory = args[1];
         String outputDirectory = args[2];
+        String cacheDirectory = "_cache";
 
-        verifyDirectory(worldDirectory);
-        verifyDirectory(locationsDirectory);
-        verifyDirectory(outputDirectory);
+        verifyDirectory(worldDirectory, false);
+        verifyDirectory(locationsDirectory, false);
+        verifyDirectory(outputDirectory, true);
+        verifyDirectory(cacheDirectory, true);
+
+        regionImageLoader.setRegionLoader(regionLoader);
+        regionImageLoader.setTerrainRenderer(terrainRenderer);
+        regionImageLoader.setCacheDirectoryName("_cache");
+        regionImageLoader.setCacheInvalidationTimeInMinutes(60);
 
         BlockData blockData = blockDataLoader.loadBlockData("vanilla_ids.json");
         List<PlayerData> playersData = playerLoader.loadPlayersData(locationsDirectory);
@@ -63,7 +68,7 @@ public class Program {
         Set<RegionCoordinates> allRegionsToBeLoaded = calculateAllRegionsToBeLoaded(playersData);
 
         System.out.println("Loading terrain");
-        Map<RegionCoordinates, BufferedImage> regionImages = loadRegionImages(allRegionsToBeLoaded, worldDirectory, blockData);
+        Map<RegionCoordinates, BufferedImage> regionImages = regionImageLoader.loadRegionImages(allRegionsToBeLoaded, worldDirectory, blockData);
 
         System.out.println("Creating maps");
         for (PlayerData playerData : playersData) {
@@ -75,7 +80,7 @@ public class Program {
             int maxX = regionCoordinates.getBounds().getMaxX() + 512;
             int minZ = regionCoordinates.getBounds().getMinZ() - 512;
             int maxZ = regionCoordinates.getBounds().getMaxZ() + 512;
-            
+
             Bounds mapBounds = new Bounds(minX, minZ, maxX, maxZ);
             WorldMap worldMap = new WorldMap(mapBounds);
 
@@ -114,12 +119,18 @@ public class Program {
         System.out.println("Done. Duration: " + duration / 1000 + " seconds.");
     }
 
-    private void verifyDirectory(String directory) {
-        if (!new File(directory).exists()) {
+    private void verifyDirectory(String directoryName, boolean createIfDoesNotExist) {
+        File directory = new File(directoryName);
+
+        if (!directory.exists()) {
+            if (createIfDoesNotExist) {
+                directory.mkdirs();
+                return;
+            }
             System.err.println("Directory " + directory + " does not exist");
             System.exit(255);
         }
-        if (!new File(directory).isDirectory()) {
+        if (!directory.isDirectory()) {
             System.out.println(directory + " is not a directory");
             System.exit(255);
         }
@@ -142,49 +153,6 @@ public class Program {
         }
 
         return allRegionsToBeLoaded;
-    }
-
-    private Map<RegionCoordinates, BufferedImage> loadRegionImages(Set<RegionCoordinates> allRegionsToBeLoaded, String worldDirectory, BlockData blockData) {
-        Map<RegionCoordinates, BufferedImage> result = new HashMap<>();
-
-        for (RegionCoordinates regionCoordinates : allRegionsToBeLoaded) {
-            String fileName = "region." + regionCoordinates.getRegionX() + "." + regionCoordinates.getRegionZ() + ".png";
-            BufferedImage regionImage;
-
-            File imageFile = new File(fileName);
-            if (imageCanBeReused(imageFile)) {
-                try {
-                    System.out.println(" - Loading region " + regionCoordinates + " from saved files");
-                    regionImage = ImageIO.read(imageFile);
-                } catch (Exception ex) {
-                    throw new RuntimeException("Failed to load region image from " + imageFile.getAbsolutePath() + ": " + ex.getMessage(), ex);
-                }
-            } else {
-                Region region = regionLoader.loadRegion(worldDirectory, regionCoordinates);
-                regionImage = terrainRenderer.renderTerrain(region, blockData);
-                try {
-                    ImageIO.write(regionImage, "png", imageFile);
-                } catch (Exception ex) {
-                    throw new RuntimeException("Failed to save region image to " + imageFile.getAbsolutePath() + ": " + ex.getMessage());
-                }
-            }
-
-            result.put(regionCoordinates, regionImage);
-        }
-
-        return result;
-    }
-
-    private boolean imageCanBeReused(File imageFile) {
-        if (!imageFile.exists()) {
-            return false;
-        }
-
-        long currentTime = new Date().getTime();
-        long imageCreationTime = imageFile.lastModified();
-        long imageFileAge = currentTime - imageCreationTime;
-
-        return imageFileAge < 15 * 60 * 1000;
     }
 
     private void saveFile(String filePath, byte[] fileContent) {
