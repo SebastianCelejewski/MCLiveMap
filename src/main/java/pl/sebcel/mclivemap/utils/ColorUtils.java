@@ -14,7 +14,7 @@ public class ColorUtils {
         }
 
         if (colorCode.trim().length() != 6) {
-            throw new IllegalArgumentException("Color code should have 6 characters representing red, green, and blue in hexadecimal format");
+            throw new IllegalArgumentException("Color code should have 6 characters representing red, green, and blue in hexadecimal format. This color code is invalid: " + colorCode);
         }
 
         String redStr = colorCode.substring(0, 2);
