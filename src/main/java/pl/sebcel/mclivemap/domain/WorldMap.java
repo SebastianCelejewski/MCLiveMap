@@ -45,17 +45,27 @@ public class WorldMap {
         // totally lame, but image.getGraphics().drawImage(...) does not work
         int localX = pastedImageBounds.getMinX() - mapBounds.getMinX();
         int localY = pastedImageBounds.getMinZ() - mapBounds.getMinZ();
-        for (int x = 0; x < 512; x++) {
-            for (int y = 0; y < 512; y++) {
+        
+        for (int x = 0; x < pastedImageBounds.getWidth(); x++) {
+            for (int y = 0; y < pastedImageBounds.getHeight(); y++) {
                 image.setRGB(localX + x, localY + y, pastedImage.getRGB(x, y));
             }
         }
     }
 
     /**
-     * Returns an image representing the whole map
+     * Returns image representing the whole map as BufferedImage object
      * 
-     * @return PNG image as array of bytes
+     * @return map image as BufferedImage
+     */
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    /**
+     * Returns an image representing the whole map as PNG file
+     * 
+     * @return map image as PNG file
      */
     public byte[] getImageAsPNG() {
         try {

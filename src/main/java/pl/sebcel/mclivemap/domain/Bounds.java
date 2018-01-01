@@ -54,4 +54,9 @@ public class Bounds {
     public int getHeight() {
         return maxZ - minZ + 1;
     }
+
+    @Override
+    public String toString() {
+        return getWidth() + " x " + getHeight() + "(minX: " + minX + ", minZ: " + minZ + ", maxX: " + maxX + ", maxZ: " + maxZ + ")";
+    }
 }
