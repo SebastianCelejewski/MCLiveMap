@@ -101,6 +101,7 @@ public class Program {
             System.out.println("   - Rendering players");
             playerRenderer.renderPlayers(worldMap, playersData);
 
+            System.out.println("   - Rendering PNG image");
             byte[] mapImage = worldMap.getImageAsPNG();
             String fileName = outputDirectory + File.separator + "map-" + playerData.getName() + ".png";
             System.out.println("   - Saving rendered map to " + fileName);
