@@ -12,7 +12,7 @@ public class PlayerRenderer {
 
     private final static Color[] COLOR_TABLE = new Color[] { Color.BLACK, Color.BLUE, Color.RED, Color.GREEN, Color.DARK_GRAY };
 
-    public void renderPlayers(WorldMap worldMap, List<PlayerData> playersData) {
+    public void renderPlayers(WorldMap worldMap, List<PlayerData> playersData, boolean drawPaths) {
         Graphics g = worldMap.getGraphics();
 
         int colourIdx = 0;
@@ -45,7 +45,7 @@ public class PlayerRenderer {
                     continue;
                 }
 
-                if (previousImageX != null) {
+                if (previousImageX != null && drawPaths) {
                     g.drawLine(previousImageX, previousImageY, imageX, imageY);
                 }
 
@@ -53,9 +53,10 @@ public class PlayerRenderer {
                 previousImageY = imageY;
 
             }
+            
             if (previousImageX != null) {
-                g.fillOval(previousImageX - 2, previousImageY - 2, 5, 5);
-                g.drawString(playerData.getName(), previousImageX, previousImageY);
+                g.fillOval(previousImageX - 4, previousImageY - 4, 9, 9);
+                g.drawString(playerData.getName(), previousImageX + 9, previousImageY);
             }
         }
     }

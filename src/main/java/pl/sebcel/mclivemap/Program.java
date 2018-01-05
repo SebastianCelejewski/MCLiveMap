@@ -47,6 +47,7 @@ public class Program {
         String locationsDirectory = args[1];
         String outputDirectory = args[2];
         String cacheDirectory = "_cache";
+        boolean drawPaths = false;
 
         verifyDirectory(worldDirectory, false);
         verifyDirectory(locationsDirectory, false);
@@ -99,13 +100,10 @@ public class Program {
                 worldMap.setImageFragment(regionImage, regCoord.getBounds());
             }
             System.out.println("   - Rendering players");
-            playerRenderer.renderPlayers(worldMap, playersData);
+            playerRenderer.renderPlayers(worldMap, playersData, drawPaths);
 
-            System.out.println("   - Rendering PNG image");
-            byte[] mapImage = worldMap.getImageAsPNG();
-            String fileName = outputDirectory + File.separator + "map-" + playerData.getName() + ".png";
-            System.out.println("   - Saving rendered map to " + fileName);
-            FileUtils.saveFile(fileName, mapImage);
+            System.out.println("   - Rendering and saving PNG image");
+            renderAndSave(worldMap, outputDirectory, playerData.getName());
         }
 
         System.out.println("Rendering site");
@@ -154,4 +152,15 @@ public class Program {
         return allRegionsToBeLoaded;
     }
 
+
+    private void renderAndSave(WorldMap worldMap, String outputDirectory, String playerName) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                byte[] mapImage = worldMap.getImageAsPNG();
+                String fileName = outputDirectory + File.separator + "map-" + playerName + ".png";
+                FileUtils.saveFile(fileName, mapImage);
+            }
+        }).start();
+    }
 }
