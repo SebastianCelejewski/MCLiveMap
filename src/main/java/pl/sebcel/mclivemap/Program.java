@@ -108,7 +108,7 @@ public class Program {
 
         System.out.println("Rendering site");
         String site = siteRenderer.renderSite(playersData, "template.html");
-        FileUtils.saveFile(outputDirectory + File.separator + "index.html", site);
+        FileUtils.saveFile(outputDirectory + File.separator + "livemaps.html", site);
 
         long endTime = new Date().getTime();
         long duration = endTime - startTime;
