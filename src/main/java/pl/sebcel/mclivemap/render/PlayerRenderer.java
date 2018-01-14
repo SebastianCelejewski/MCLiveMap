@@ -10,7 +10,7 @@ import pl.sebcel.mclivemap.domain.WorldMap;
 
 public class PlayerRenderer {
 
-    private final static Color[] COLOR_TABLE = new Color[] { Color.BLACK, Color.BLUE, Color.RED, Color.GREEN, Color.DARK_GRAY };
+    private final static Color[] COLOR_TABLE = new Color[] { Color.BLACK, Color.BLUE, Color.RED, Color.GREEN, Color.DARK_GRAY, Color.YELLOW, Color.CYAN, Color.MAGENTA };
 
     public void renderPlayers(WorldMap worldMap, List<PlayerData> playersData, boolean drawPaths) {
         Graphics g = worldMap.getGraphics();
