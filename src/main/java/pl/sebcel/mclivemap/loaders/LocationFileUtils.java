@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 public class LocationFileUtils {
 
     public static boolean matchLocationFile(String fileName, String datePattern) {
-        return fileName.startsWith("location-") && fileName.endsWith(datePattern + ".csv");
+        return fileName.startsWith("location-") && fileName.endsWith(datePattern + ".csv"); 
     }
 
     public static String getPlayerName(String locationFilePath, String datePattern) {
