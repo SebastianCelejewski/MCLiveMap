@@ -19,12 +19,13 @@ import pl.sebcel.mclivemap.loaders.PlayerLoader;
 import pl.sebcel.mclivemap.loaders.RegionImageLoader;
 import pl.sebcel.mclivemap.loaders.RegionLoader;
 import pl.sebcel.mclivemap.render.PlayerRenderer;
+import pl.sebcel.mclivemap.render.PlayerRenderer.Mode;
 import pl.sebcel.mclivemap.render.SiteRenderer;
 import pl.sebcel.mclivemap.render.TerrainRenderer;
 import pl.sebcel.mclivemap.utils.FileUtils;
 
 public class Program {
-
+    
     private RegionLoader regionLoader = new RegionLoader();
     private BlockDataLoader blockDataLoader = new BlockDataLoader();
     private PlayerLoader playerLoader = new PlayerLoader();
@@ -47,7 +48,8 @@ public class Program {
         String locationsDirectory = args[1];
         String outputDirectory = args[2];
         String cacheDirectory = "_cache";
-        boolean drawPaths = false;
+        
+        Mode pathsDrawingMode = Mode.NONE;
 
         verifyDirectory(worldDirectory, false);
         verifyDirectory(locationsDirectory, false);
@@ -100,7 +102,7 @@ public class Program {
                 worldMap.setImageFragment(regionImage, regCoord.getBounds());
             }
             System.out.println("   - Rendering players");
-            playerRenderer.renderPlayers(worldMap, playersData, drawPaths);
+            playerRenderer.renderPlayers(worldMap, playerData.getName(), playersData, pathsDrawingMode);
 
             System.out.println("   - Rendering and saving PNG image");
             renderAndSave(worldMap, outputDirectory, playerData.getName());

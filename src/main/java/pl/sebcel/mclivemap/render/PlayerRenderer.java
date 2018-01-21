@@ -10,6 +10,8 @@ import pl.sebcel.mclivemap.domain.WorldMap;
 
 public class PlayerRenderer {
 
+    public enum Mode { NONE, SINGLE_PLAYER, ALL_PLAYERS}
+    
     private Color[] colourPalette = new Color[22];
 
     public PlayerRenderer() {
@@ -37,7 +39,7 @@ public class PlayerRenderer {
         colourPalette[21] = new Color(0, 0, 0);
     }
 
-    public void renderPlayers(WorldMap worldMap, List<PlayerData> playersData, boolean drawPaths) {
+    public void renderPlayers(WorldMap worldMap, String playerName, List<PlayerData> playersData, Mode mode) {
         Graphics g = worldMap.getGraphics();
 
         int colourIdx = 0;
@@ -47,6 +49,16 @@ public class PlayerRenderer {
             g.setColor(colourPalette[colourIdx++]);
 
             List<PlayerLocation> locations = playerData.getLocations();
+            
+            boolean drawPaths = false;
+            
+            if (mode == Mode.ALL_PLAYERS) {
+                drawPaths = true;
+            }
+            
+            if (mode == Mode.SINGLE_PLAYER && playerName.equals(playerData.getName())) {
+                drawPaths = true;
+            }
 
             for (PlayerLocation location : locations) {
                 int dimension = location.getDimension();
