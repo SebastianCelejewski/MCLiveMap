@@ -1,4 +1,5 @@
 apply plugin: 'java-library'
+apply plugin: 'groovy'
 
 repositories {
     jcenter()
@@ -9,6 +10,8 @@ dependencies {
     compile "org.json:json:20171018"
     compile "org.apache.velocity:velocity:1.6.2"
     testCompile "junit:junit:4.10"
+	testCompile "org.codehaus.groovy:groovy-all:2.4.4"
+	testCompile "org.spockframework:spock-core:1.0-groovy-2.4"    
 }
 
 jar {
