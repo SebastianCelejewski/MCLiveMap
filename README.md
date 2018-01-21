@@ -1,4 +1,4 @@
-# Minecraft Life Map
+# Minecraft Live Map
 
 An application to be deployed to a Minecraft server that draws a map based on current region data and player locations.
 
@@ -10,9 +10,9 @@ This is going to be a part of a web page that will show current map of Świat Ce
 
 Sample result:
 
-![screenshot](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/screenshot.jpeg)
+![screenshot](https://raw.githubusercontent.com/SebastianCelejewski/MCLiveMap/master/doc/screenshot.jpeg)
 
 This is a fragment of the Świat Celejewskich world depicted on one of those maps:
 
-![game_view](https://raw.githubusercontent.com/SebastianCelejewski/MinecraftLifeMap/master/doc/game_view.jpeg)
+![game_view](https://raw.githubusercontent.com/SebastianCelejewski/MCLiveMap/master/doc/game_view.jpeg)
 
