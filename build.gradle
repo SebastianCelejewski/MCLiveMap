@@ -18,6 +18,6 @@ dependencies {
 jar {
     manifest {
         attributes 'Main-Class': 'pl.sebcel.mclivemap.Program'
-        attributes 'Class-Path': 'flow-nbt-1.0.0.jar json-20171018.jar velocity-1.6.2.jar commons-collections-3.2.1.jar commons-lang-2.4.jar'
+        attributes 'Class-Path': 'flow-nbt-1.0.1-longarray-SNAPSHOT.jar json-20171018.jar velocity-1.6.2.jar commons-collections-3.2.1.jar commons-lang-2.4.jar'
     }
 }
