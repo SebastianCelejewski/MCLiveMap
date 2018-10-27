@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import pl.sebcel.mclivemap.BlockData;
+import pl.sebcel.mclivemap.ColourTable;
 import pl.sebcel.mclivemap.domain.Block;
 import pl.sebcel.mclivemap.utils.ColorUtils;
 
@@ -64,4 +65,21 @@ public class BlockDataLoader {
         data.put(id, block);
     }
 
+    public ColourTable loadColourTable(String colourTableFilePath) {
+        try {
+
+            Map<String, Color> data = new HashMap<>();
+            List<String> colourTableEntries = Files.readAllLines(Paths.get(colourTableFilePath));
+            for (String colourTableEntry : colourTableEntries) {
+                String[] tokens = colourTableEntry.split(",");
+                String blockId = tokens[0];
+                String colourCode = tokens[1];
+                Color color = ColorUtils.getColor(colourCode);
+                data.put(blockId, color);
+            }
+            return new ColourTable(data);
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to load colour table from file " + colourTableFilePath + ": " + ex.getMessage(), ex);
+        }
+    }
 }

@@ -9,7 +9,6 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
-import pl.sebcel.mclivemap.BlockData;
 import pl.sebcel.mclivemap.domain.Region;
 import pl.sebcel.mclivemap.domain.RegionCoordinates;
 import pl.sebcel.mclivemap.render.TerrainRenderer;
@@ -20,6 +19,8 @@ public class RegionImageLoader {
     private TerrainRenderer terrainRenderer;
     private String cacheDirectoryName;
     private int cacheInvalidationTimeInMinutes;
+    
+    private boolean cacheEnabled = true;
 
     public void setRegionLoader(RegionLoader regionLoader) {
         this.regionLoader = regionLoader;
@@ -37,7 +38,7 @@ public class RegionImageLoader {
         this.cacheInvalidationTimeInMinutes = cacheInvalidationTimeInMinutes;
     }
 
-    public Map<RegionCoordinates, BufferedImage> loadRegionImages(Set<RegionCoordinates> allRegionsToBeLoaded, String worldDirectory, BlockData blockData) {
+    public Map<RegionCoordinates, BufferedImage> loadRegionImages(Set<RegionCoordinates> allRegionsToBeLoaded, String worldDirectory) {
         Map<RegionCoordinates, BufferedImage> result = new HashMap<>();
 
         for (RegionCoordinates regionCoordinates : allRegionsToBeLoaded) {
@@ -45,7 +46,7 @@ public class RegionImageLoader {
             BufferedImage regionImage;
 
             File imageFile = new File(fileName);
-            if (imageCanBeReused(imageFile)) {
+            if (cacheEnabled && imageCanBeReused(imageFile)) {
                 try {
                     System.out.println(" - Loading region " + regionCoordinates + " from saved files");
                     regionImage = ImageIO.read(imageFile);
@@ -54,7 +55,10 @@ public class RegionImageLoader {
                 }
             } else {
                 Region region = regionLoader.loadRegion(worldDirectory, regionCoordinates);
-                regionImage = terrainRenderer.renderTerrain(region, blockData);
+                if (!region.isLoadedSuccessfully()) {
+                    throw new RuntimeException("Region did not load successfully. Cannot render region image.");
+                }
+                regionImage = terrainRenderer.renderTerrain(region);
                 try {
                     ImageIO.write(regionImage, "png", imageFile);
                 } catch (Exception ex) {

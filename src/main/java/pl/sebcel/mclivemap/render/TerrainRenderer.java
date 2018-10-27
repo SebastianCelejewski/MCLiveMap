@@ -4,12 +4,24 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import pl.sebcel.mclivemap.BlockData;
+import pl.sebcel.mclivemap.ColourTable;
 import pl.sebcel.mclivemap.domain.Chunk;
 import pl.sebcel.mclivemap.domain.Region;
 
 public class TerrainRenderer {
 
-    public BufferedImage renderTerrain(Region region, BlockData blockData) {
+    private BlockData blockData;
+    private ColourTable colourTable;
+
+    public void setBlockData(BlockData blockData) {
+        this.blockData = blockData;
+    }
+
+    public void setColourTable(ColourTable colourTable) {
+        this.colourTable = colourTable;
+    }
+
+    public BufferedImage renderTerrain(Region region) {
         BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
 
         if (region == null) {
@@ -29,26 +41,51 @@ public class TerrainRenderer {
             int chunkZ = chunk.getChunkZ();
 
             int[] heightMap = chunk.getHeightMap();
-            byte[] blocks = chunk.getBlocks();
+            int[] numericBlockIds = chunk.getNumericBlockIds();
+            String[] stringBlockIds = chunk.getStringBlockIds();
+            boolean blockIdsAreStrings = chunk.isBlockIdsAreStrings();
+
             for (int x = 0; x < 16; x++) {
                 for (int z = 0; z < 16; z++) {
                     int baseHeight = heightMap[x + 16 * z];
 
                     int height = baseHeight;
-                    boolean foundNonTransparent = false;
-                    while (!foundNonTransparent && height >= 0) {
-                        int blockId = (int) blocks[x + 16 * z + 16 * 16 * height] & 0xFF;
-                        if (!blockData.isTransparent(blockId)) {
-                            Color color = blockData.getColor(blockId);
-                            int imageX = chunkX * 16 + x - minX;
-                            int imageY = chunkZ * 16 + z - minZ;
 
-                            color = modifyColorBasedOnRegionHeightMap(color, regionHeightMap, heightMap, x, z, imageX, imageY, baseHeight);
+                    boolean heightOnly = false;
 
-                            image.setRGB(imageX, imageY, color.getRGB());
-                            foundNonTransparent = true;
-                        } else {
-                            height--;
+                    if (heightOnly) {
+                        Color color = new Color(height, 255 - height, 0);
+                        int imageX = chunkX * 16 + x - minX;
+                        int imageY = chunkZ * 16 + z - minZ;
+                        image.setRGB(imageX, imageY, color.getRGB());
+                    } else {
+                        boolean foundNonTransparent = false;
+                        while (!foundNonTransparent && height >= 0) {
+                            if (!blockIdsAreStrings) {
+                                int blockId = (int) numericBlockIds[x + 16 * z + 16 * 16 * height] & 0xFF;
+                                if (!blockData.isTransparent(blockId)) {
+                                    Color color = blockData.getColor(blockId);
+                                    int imageX = chunkX * 16 + x - minX;
+                                    int imageY = chunkZ * 16 + z - minZ;
+                                    color = modifyColorBasedOnRegionHeightMap(color, regionHeightMap, heightMap, x, z, imageX, imageY, baseHeight);
+                                    image.setRGB(imageX, imageY, color.getRGB());
+                                    foundNonTransparent = true;
+                                } else {
+                                    height--;
+                                }
+                            } else {
+                                String blockId = stringBlockIds[x + 16 * z + 16 * 16 * height];
+                                Color color = colourTable.getColor(blockId);
+                                if (color != null) {
+                                    int imageX = chunkX * 16 + x - minX;
+                                    int imageY = chunkZ * 16 + z - minZ;
+                                    color = modifyColorBasedOnRegionHeightMap(color, regionHeightMap, heightMap, x, z, imageX, imageY, baseHeight);
+                                    image.setRGB(imageX, imageY, color.getRGB());
+                                    foundNonTransparent = true;
+                                } else {
+                                    height--;
+                                }
+                            }
                         }
                     }
                 }

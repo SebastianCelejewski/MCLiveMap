@@ -62,6 +62,11 @@ public class Program {
         regionImageLoader.setCacheInvalidationTimeInMinutes(60);
 
         BlockData blockData = blockDataLoader.loadBlockData("vanilla_ids.json");
+        ColourTable colourTable = blockDataLoader.loadColourTable("colourTable.csv");
+        terrainRenderer.setBlockData(blockData);
+        terrainRenderer.setColourTable(colourTable);
+        
+        
         List<PlayerData> playersData = playerLoader.loadPlayersData(locationsDirectory);
 
         long startTime = new Date().getTime();
@@ -69,7 +74,7 @@ public class Program {
         Set<RegionCoordinates> allRegionsToBeLoaded = calculateAllRegionsToBeLoaded(playersData);
 
         System.out.println("Loading terrain");
-        Map<RegionCoordinates, BufferedImage> regionImages = regionImageLoader.loadRegionImages(allRegionsToBeLoaded, worldDirectory, blockData);
+        Map<RegionCoordinates, BufferedImage> regionImages = regionImageLoader.loadRegionImages(allRegionsToBeLoaded, worldDirectory);
 
         System.out.println("Creating maps");
         for (PlayerData playerData : playersData) {

@@ -3,10 +3,11 @@ apply plugin: 'groovy'
 
 repositories {
     jcenter()
+    mavenLocal()
 }
 
 dependencies {
-    compile "com.flowpowered:flow-nbt:1.0.0"
+    compile "com.flowpowered:flow-nbt:1.0.1-longarray-SNAPSHOT"
     compile "org.json:json:20171018"
     compile "org.apache.velocity:velocity:1.6.2"
     testCompile "junit:junit:4.10"
