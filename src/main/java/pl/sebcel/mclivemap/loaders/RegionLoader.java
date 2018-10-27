@@ -117,7 +117,7 @@ public class RegionLoader {
                     chunk.setStringBlockIds(stringBlockIds);
                     chunk.setBlockIdsAreStrings(true);
                 } else {
-                    throw new RuntimeException("Unknown type of a tag");
+                    throw new RuntimeException("Unknown type of a tag, dataVersion: " + dataVersion);
                 }
 
                 chunks.add(chunk);
@@ -189,11 +189,11 @@ public class RegionLoader {
     }
 
     private boolean is1_12_chunk(int dataVersion) {
-        return dataVersion == 1139 || dataVersion == 1343;
+        return dataVersion < 1631;
     }
 
     private boolean is1_13_chunk(int dataVersion) {
-        return dataVersion == 1631;
+        return dataVersion >= 1631;
     }
     
 
