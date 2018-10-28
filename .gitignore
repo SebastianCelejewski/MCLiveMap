@@ -6,7 +6,6 @@
 /world/
 /gradle/
 *.png
-*.csv
 *.mca
 gradlew
 gradlew.bat
