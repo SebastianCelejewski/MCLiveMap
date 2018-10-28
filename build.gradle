@@ -1,10 +1,13 @@
-apply plugin: 'java-library'
+apply plugin: 'java'
 apply plugin: 'groovy'
 
 repositories {
     jcenter()
     mavenLocal()
 }
+
+version = "1.0"
+group = "pl.sebcel.minecraft"
 
 dependencies {
     compile "com.flowpowered:flow-nbt:1.0.1-longarray-SNAPSHOT"
@@ -16,8 +19,8 @@ dependencies {
 }
 
 jar {
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest {
-        attributes 'Main-Class': 'pl.sebcel.mclivemap.Program'
-        attributes 'Class-Path': 'flow-nbt-1.0.1-longarray-SNAPSHOT.jar json-20171018.jar velocity-1.6.2.jar commons-collections-3.2.1.jar commons-lang-2.4.jar'
+      	attributes 'Main-Class': 'pl.sebcel.mclivemap.Program'
     }
 }
