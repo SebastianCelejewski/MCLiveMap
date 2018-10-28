@@ -1,46 +1,30 @@
 package pl.sebcel.mclivemap.loaders;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 public class NBTLongArrayDecompressor {
-    
+
     public int[] decompress(long[] input, int numberOfValues) {
-        String bitsString = Arrays.stream(input)
-              .map(l -> Long.reverse(l))
-              .mapToObj(l -> Long.toBinaryString(l))
-              .map(s -> padWithZeroesToMake64bits(s))
-              .collect(Collectors.joining(""));
+        int[] result = new int[numberOfValues];
 
-        int bitsPerValue = bitsString.length() / numberOfValues;
-        int[] heightMap = Arrays.stream(splitIntoFixedLengthString(bitsString, bitsPerValue))
-            .map(s -> reverse(s))
-            .mapToInt(s -> Integer.parseInt(s, 2))
-            .toArray();
+        int bitsPerValue = 64 * input.length / numberOfValues;
 
-        return heightMap;
-    }
+        int inputLongIdx = 0;
+        int inputBitIdx = 0;
 
-    private String padWithZeroesToMake64bits(String s) {
-        while (s.length() < 64) {
-            s = "0" + s;
+        for (int outputIntIdx = 0; outputIntIdx < result.length; outputIntIdx++) {
+            for (int outputBitIdx = 0; outputBitIdx < bitsPerValue; outputBitIdx++) {
+                long value = input[inputLongIdx] & (1L << inputBitIdx);
+                if (value != 0) {
+                    value = 1;
+                }
+                result[outputIntIdx] = (int) ((result[outputIntIdx] | (value << outputBitIdx)) & 0xff);
+                inputBitIdx++;
+                if (inputBitIdx > 63) {
+                    inputLongIdx++;
+                    inputBitIdx = 0;
+                }
+            }
         }
-        return s;
-    }
-    
-    private String reverse(String s) {
-        char[] output = new char[s.length()];
-        for (int i = 0; i < s.length(); i++) {
-            output[s.length()-i-1] = s.charAt(i);
-        }
-        return new String(output);
-    }
-    
-    private String[] splitIntoFixedLengthString(String s, int chunkLength) {
-        String[] outputChunks = new String[s.length() / chunkLength];
-        for (int i = 0; i < outputChunks.length; i++) {
-            outputChunks[i] = s.substring(i * chunkLength,  (i+1) * chunkLength);
-        }
-        return outputChunks;
+
+        return result;
     }
 }
