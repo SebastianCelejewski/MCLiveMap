@@ -8,10 +8,7 @@ import java.util.List;
 
 import com.flowpowered.nbt.ByteTag;
 import com.flowpowered.nbt.CompoundMap;
-import com.flowpowered.nbt.CompoundTag;
 import com.flowpowered.nbt.IntTag;
-import com.flowpowered.nbt.ListTag;
-import com.flowpowered.nbt.LongArrayTag;
 import com.flowpowered.nbt.Tag;
 import com.flowpowered.nbt.stream.NBTInputStream;
 
@@ -24,7 +21,8 @@ public class RegionLoader {
 
     private Decompressor decompressor = new Decompressor();
 
-    private NBTLongArrayDecompressor nbtLongArrayDecompressor = new NBTLongArrayDecompressor();
+    private IChunkLoader chunkLoader_1_12 = new ChunkLoader_1_12();
+    private IChunkLoader chunkLoader_1_13 = new ChunkLoader_1_13();
 
     /**
      * May return null if region does not yet exist
@@ -71,46 +69,22 @@ public class RegionLoader {
 
                 Chunk chunk = new Chunk(chunkX, chunkZ);
                 if (is1_12_chunk(dataVersion)) {
-                    int[] numericBlockIds = new int[16 * 16 * 256];
-                    int[] heightMapData = (int[]) levelTag.get("HeightMap").getValue();
+                    int[] heightMapData = chunkLoader_1_12.getHeightMap(levelTag);
+                    int[] blockData = chunkLoader_1_12.getNumbericBlockIds(levelTag);
                     chunk.setHeightMap(heightMapData);
-
-                    ListTag sectionsTag = (ListTag) levelTag.get("Sections");
-                    List<CompoundTag> sectionsTags = sectionsTag.getValue();
-                    for (CompoundTag section : sectionsTags) {
-                        byte yPos = ((Tag<Byte>) section.getValue().get("Y")).getValue();
-                        byte[] sectionBlockIds = (byte[]) section.getValue().get("Blocks").getValue();
-                        for (int idx = 0; idx < sectionBlockIds.length; idx++) {
-                            numericBlockIds[idx + yPos * 4096] = sectionBlockIds[idx];
-                        }
-                    }
-                    chunk.setNumericBlockIds(numericBlockIds);
+                    chunk.setNumericBlockIds(blockData);
                     chunk.setBlockIdsAreStrings(false);
-                } else if (is1_13_chunk(dataVersion)) {
-                    String[] stringBlockIds = new String[16 * 16 * 256];
-                    if (hasLegacyStructureData) {
-                        int[] heightMapData = (int[]) levelTag.get("HeightMap").getValue();
-                        chunk.setHeightMap(heightMapData);
-                    } else {
-                        CompoundTag heightmapsTag = (CompoundTag) levelTag.get("Heightmaps");
-                        LongArrayTag surfaceHeightMapTag = (LongArrayTag) (heightmapsTag.getValue().get("WORLD_SURFACE"));
-                        long[] compressedHeightMapData = surfaceHeightMapTag.getValue();
-                        int[] heightMapData = nbtLongArrayDecompressor.decompress(compressedHeightMapData, 256);
-                        chunk.setHeightMap(heightMapData);
-                    }
-
-                    ListTag sectionsTag = (ListTag) levelTag.get("Sections");
-                    List<CompoundTag> sectionsTags = sectionsTag.getValue();
-                    for (CompoundTag section : sectionsTags) {
-                        ListTag paletteTag = (ListTag) section.getValue().get("Palette");
-                        byte yPos = ((Tag<Byte>) section.getValue().get("Y")).getValue();
-                        long[] compressedSectionEncodedBlockIds = (long[]) section.getValue().get("BlockStates").getValue();
-                        int[] sectionBlockIdxs = nbtLongArrayDecompressor.decompress(compressedSectionEncodedBlockIds, 256 * 16);
-                        for (int ii = 0; ii < sectionBlockIdxs.length; ii++) {
-                            stringBlockIds[ii + yPos * 4096] = ((CompoundTag) paletteTag.getValue().get(sectionBlockIdxs[ii])).getValue().get("Name").getValue().toString();
-                        }
-                    }
-                    chunk.setStringBlockIds(stringBlockIds);
+                } else if (is1_13_chunk(dataVersion) && hasLegacyStructureData) {
+                    int[] heightMapData = chunkLoader_1_12.getHeightMap(levelTag);
+                    String[] blockData = chunkLoader_1_13.getStringBlockIds(levelTag);
+                    chunk.setHeightMap(heightMapData);
+                    chunk.setStringBlockIds(blockData);
+                    chunk.setBlockIdsAreStrings(true);
+                } else if (is1_13_chunk(dataVersion) && !hasLegacyStructureData) {
+                    int[] heightMapData = chunkLoader_1_13.getHeightMap(levelTag);
+                    String[] blockData = chunkLoader_1_13.getStringBlockIds(levelTag);
+                    chunk.setHeightMap(heightMapData);
+                    chunk.setStringBlockIds(blockData);
                     chunk.setBlockIdsAreStrings(true);
                 } else {
                     throw new RuntimeException("Unknown type of a tag, dataVersion: " + dataVersion);

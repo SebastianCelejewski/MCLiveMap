@@ -63,6 +63,7 @@ public class TerrainRenderer {
                         while (!foundNonTransparent && height >= 0) {
                             if (!blockIdsAreStrings) {
                                 int blockId = (int) numericBlockIds[x + 16 * z + 16 * 16 * height] & 0xFF;
+                                
                                 if (!blockData.isTransparent(blockId)) {
                                     Color color = blockData.getColor(blockId);
                                     int imageX = chunkX * 16 + x - minX;
