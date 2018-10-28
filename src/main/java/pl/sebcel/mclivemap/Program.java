@@ -44,6 +44,8 @@ public class Program {
             System.exit(255);
         }
 
+        long startTime = new Date().getTime();
+
         String worldDirectory = args[0];
         String locationsDirectory = args[1];
         String outputDirectory = args[2];
@@ -62,14 +64,12 @@ public class Program {
         regionImageLoader.setCacheInvalidationTimeInMinutes(60);
 
         BlockData blockData = blockDataLoader.loadBlockData("vanilla_ids.json");
-        ColourTable colourTable = blockDataLoader.loadColourTable("colourTable.csv");
+        ColourTable colourTable = new ColourTable();
+        colourTable.loadColourTable("colourTable.csv");
         terrainRenderer.setBlockData(blockData);
         terrainRenderer.setColourTable(colourTable);
         
-        
         List<PlayerData> playersData = playerLoader.loadPlayersData(locationsDirectory);
-
-        long startTime = new Date().getTime();
 
         Set<RegionCoordinates> allRegionsToBeLoaded = calculateAllRegionsToBeLoaded(playersData);
 
@@ -161,13 +161,10 @@ public class Program {
 
 
     private void renderAndSave(WorldMap worldMap, String outputDirectory, String playerName) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                byte[] mapImage = worldMap.getImageAsPNG();
-                String fileName = outputDirectory + File.separator + "map-" + playerName + ".png";
-                FileUtils.saveFile(fileName, mapImage);
-            }
+        new Thread(() -> {
+            byte[] mapImage = worldMap.getImageAsPNG();
+            String fileName = outputDirectory + File.separator + "map-" + playerName + ".png";
+            FileUtils.saveFile(fileName, mapImage);
         }).start();
     }
 }

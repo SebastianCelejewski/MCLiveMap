@@ -20,7 +20,6 @@ import pl.sebcel.mclivemap.utils.FileUtils;
 public class RegionLoader {
 
     private Decompressor decompressor = new Decompressor();
-
     private IChunkLoader chunkLoader_1_12 = new ChunkLoader_1_12();
     private IChunkLoader chunkLoader_1_13 = new ChunkLoader_1_13();
 
@@ -41,11 +40,12 @@ public class RegionLoader {
         }
 
         List<Chunk> chunks = new ArrayList<>();
+        
         boolean loadedSuccessfully = true;
-
         Integer chunkX = null;
         Integer chunkZ = null;
         Integer dataVersion = null;
+
         for (int i = 0; i < 1024; i++) {
             try {
                 chunkX = null;

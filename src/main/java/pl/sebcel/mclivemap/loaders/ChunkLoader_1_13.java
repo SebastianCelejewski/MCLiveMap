@@ -33,8 +33,8 @@ public class ChunkLoader_1_13 implements IChunkLoader {
             byte yPos = ((Tag<Byte>) section.getValue().get("Y")).getValue();
             long[] compressedSectionEncodedBlockIds = (long[]) section.getValue().get("BlockStates").getValue();
             int[] sectionBlockIdxs = nbtLongArrayDecompressor.decompress(compressedSectionEncodedBlockIds, 256 * 16);
-            for (int ii = 0; ii < sectionBlockIdxs.length; ii++) {
-                stringBlockIds[ii + yPos * 4096] = ((CompoundTag) paletteTag.getValue().get(sectionBlockIdxs[ii])).getValue().get("Name").getValue().toString();
+            for (int i = 0; i < sectionBlockIdxs.length; i++) {
+                stringBlockIds[i + yPos * 4096] = ((CompoundTag) paletteTag.getValue().get(sectionBlockIdxs[i])).getValue().get("Name").getValue().toString();
             }
         }
         return stringBlockIds;

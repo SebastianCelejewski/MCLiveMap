@@ -12,7 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import pl.sebcel.mclivemap.BlockData;
-import pl.sebcel.mclivemap.ColourTable;
 import pl.sebcel.mclivemap.domain.Block;
 import pl.sebcel.mclivemap.utils.ColorUtils;
 
@@ -40,7 +39,7 @@ public class BlockDataLoader {
             String blockDefinitions = new String(Files.readAllBytes(Paths.get(blockDataFilePath)));
             JSONObject root = new JSONObject(blockDefinitions);
             JSONArray dataArray = root.getJSONArray("data");
-            dataArray.forEach(x -> saveData(data, x));
+            dataArray.forEach(x -> storeBlockData(data, x));
 
         } catch (Exception ex) {
             throw new RuntimeException("Failed to load block data from " + blockDataFilePath + ": " + ex.getMessage(), ex);
@@ -49,7 +48,7 @@ public class BlockDataLoader {
         return new BlockData(data);
     }
 
-    private void saveData(Map<Integer, Block> data, Object x) {
+    private void storeBlockData(Map<Integer, Block> data, Object x) {
         JSONObject o = (JSONObject) x;
 
         int id = o.getInt("id");
@@ -63,23 +62,5 @@ public class BlockDataLoader {
 
         Block block = new Block(id, name, isTransparent, color);
         data.put(id, block);
-    }
-
-    public ColourTable loadColourTable(String colourTableFilePath) {
-        try {
-
-            Map<String, Color> data = new HashMap<>();
-            List<String> colourTableEntries = Files.readAllLines(Paths.get(colourTableFilePath));
-            for (String colourTableEntry : colourTableEntries) {
-                String[] tokens = colourTableEntry.split(",");
-                String blockId = tokens[0];
-                String colourCode = tokens[1];
-                Color color = ColorUtils.getColor(colourCode);
-                data.put(blockId, color);
-            }
-            return new ColourTable(data);
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to load colour table from file " + colourTableFilePath + ": " + ex.getMessage(), ex);
-        }
     }
 }
