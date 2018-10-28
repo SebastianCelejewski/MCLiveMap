@@ -35,7 +35,11 @@ public class Program {
     private RegionImageLoader regionImageLoader = new RegionImageLoader();
 
     public static void main(String[] args) {
+        long startTime = new Date().getTime();
         new Program().run(args);
+        long endTime = new Date().getTime();
+        long duration = endTime - startTime;
+        System.out.println("Duration: " + duration + " ms");
     }
 
     public void run(String[] args) {

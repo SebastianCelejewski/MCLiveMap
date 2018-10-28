@@ -18,7 +18,6 @@ import com.flowpowered.nbt.CompoundTag;
 import com.flowpowered.nbt.IntTag;
 import com.flowpowered.nbt.ListTag;
 import com.flowpowered.nbt.LongArrayTag;
-import com.flowpowered.nbt.StringTag;
 import com.flowpowered.nbt.Tag;
 import com.flowpowered.nbt.stream.NBTInputStream;
 
@@ -135,36 +134,36 @@ public class RegionLoader {
 
     private int[] decompressHeightMapData(long[] compressedHeightMapData) {
         String bitsString = Arrays.stream(compressedHeightMapData)
+              .map(l -> Long.reverse(l))
               .mapToObj(l -> Long.toBinaryString(l))
               .map(s -> padWithZeroesToMake64bits(s))
-              .map(s -> reverse(s))
               .collect(Collectors.joining(""));
-        
+
         int bitsPerValue = bitsString.length() / 256;
         int[] heightMap = Arrays.stream(splitIntoFixedLengthString(bitsString, bitsPerValue))
             .map(s -> reverse(s))
             .mapToInt(s -> Integer.parseInt(s, 2))
             .toArray();
-            
+
         return heightMap;
     }
     
     private int[] decompressBlockStateData(long[] compressedBlockStatesData) {
         String bitsString = Arrays.stream(compressedBlockStatesData)
+                .map(l -> Long.reverse(l))
                 .mapToObj(l -> Long.toBinaryString(l))
                 .map(s -> padWithZeroesToMake64bits(s))
-                .map(s -> reverse(s))
                 .collect(Collectors.joining(""));
-          
           int bitsPerValue = bitsString.length() / (16 * 16 * 16);
+
           int[] blockData = Arrays.stream(splitIntoFixedLengthString(bitsString, bitsPerValue))
-              .map(s -> reverse(s))
-              .mapToInt(s -> Integer.parseInt(s, 2))
-              .toArray();
-              
+                  .map(s -> reverse(s))
+                  .mapToInt(s -> Integer.parseInt(s, 2))
+                  .toArray();
+    
           return blockData;
     }
-    
+
     private String padWithZeroesToMake64bits(String s) {
         while (s.length() < 64) {
             s = "0" + s;
@@ -172,12 +171,13 @@ public class RegionLoader {
         return s;
     }
     
+    
     private String reverse(String s) {
-        String result = "";
+        char[] output = new char[s.length()];
         for (int i = 0; i < s.length(); i++) {
-            result += s.charAt(s.length() - i - 1);
+            output[s.length()-i-1] = s.charAt(i);
         }
-        return result;
+        return new String(output);
     }
     
     private String[] splitIntoFixedLengthString(String s, int chunkLength) {
