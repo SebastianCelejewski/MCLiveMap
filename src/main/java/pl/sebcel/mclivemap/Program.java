@@ -35,11 +35,7 @@ public class Program {
     private RegionImageLoader regionImageLoader = new RegionImageLoader();
 
     public static void main(String[] args) {
-        long startTime = new Date().getTime();
         new Program().run(args);
-        long endTime = new Date().getTime();
-        long duration = endTime - startTime;
-        System.out.println("Duration: " + duration + " ms");
     }
 
     public void run(String[] args) {
@@ -62,7 +58,7 @@ public class Program {
 
         regionImageLoader.setRegionLoader(regionLoader);
         regionImageLoader.setTerrainRenderer(terrainRenderer);
-        regionImageLoader.setCacheDirectoryName("_cache");
+        regionImageLoader.setCacheDirectoryName(cacheDirectory);
         regionImageLoader.setCacheInvalidationTimeInMinutes(60);
 
         BlockData blockData = blockDataLoader.loadBlockData("vanilla_ids.json");

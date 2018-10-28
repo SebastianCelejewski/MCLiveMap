@@ -48,9 +48,7 @@ public class TerrainRenderer {
             for (int x = 0; x < 16; x++) {
                 for (int z = 0; z < 16; z++) {
                     int baseHeight = heightMap[x + 16 * z];
-
                     int height = baseHeight;
-
                     boolean heightOnly = false;
 
                     if (heightOnly) {
