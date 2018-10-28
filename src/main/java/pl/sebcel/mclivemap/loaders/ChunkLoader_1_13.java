@@ -2,8 +2,6 @@ package pl.sebcel.mclivemap.loaders;
 
 import java.util.List;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.flowpowered.nbt.CompoundMap;
 import com.flowpowered.nbt.CompoundTag;
 import com.flowpowered.nbt.ListTag;
@@ -13,6 +11,11 @@ import com.flowpowered.nbt.Tag;
 public class ChunkLoader_1_13 implements IChunkLoader {
 
     private NBTLongArrayDecompressor nbtLongArrayDecompressor = new NBTLongArrayDecompressor();
+    private BlockIdsCache blockIdsCache;
+    
+    public void setBlockIdsCache(BlockIdsCache blockIdsCache) {
+        this.blockIdsCache = blockIdsCache;
+    }
 
     @Override
     public int[] getHeightMap(CompoundMap levelTag) {
@@ -24,8 +27,8 @@ public class ChunkLoader_1_13 implements IChunkLoader {
     }
 
     @Override
-    public String[] getStringBlockIds(CompoundMap levelTag) {
-        String[] stringBlockIds = new String[16 * 16 * 256];
+    public int[] getBlockIds(CompoundMap levelTag) {
+        int[] blockIds = new int[16 * 16 * 256];
         ListTag sectionsTag = (ListTag) levelTag.get("Sections");
         List<CompoundTag> sectionsTags = sectionsTag.getValue();
         for (CompoundTag section : sectionsTags) {
@@ -34,14 +37,11 @@ public class ChunkLoader_1_13 implements IChunkLoader {
             long[] compressedSectionEncodedBlockIds = (long[]) section.getValue().get("BlockStates").getValue();
             int[] sectionBlockIdxs = nbtLongArrayDecompressor.decompress(compressedSectionEncodedBlockIds, 256 * 16);
             for (int i = 0; i < sectionBlockIdxs.length; i++) {
-                stringBlockIds[i + yPos * 4096] = ((CompoundTag) paletteTag.getValue().get(sectionBlockIdxs[i])).getValue().get("Name").getValue().toString();
+                String stringBlockId = ((CompoundTag) paletteTag.getValue().get(sectionBlockIdxs[i])).getValue().get("Name").getValue().toString();
+                int intBlockId = blockIdsCache.getNumericBlockId(stringBlockId);
+                blockIds[i + yPos * 4096] = intBlockId;
             }
         }
-        return stringBlockIds;
-    }
-
-    @Override
-    public int[] getNumbericBlockIds(CompoundMap levelTag) {
-        throw new NotImplementedException();
+        return blockIds;
     }
 }

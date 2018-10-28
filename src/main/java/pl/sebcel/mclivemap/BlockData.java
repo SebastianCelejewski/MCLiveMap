@@ -14,19 +14,12 @@ public class BlockData {
         this.data = data;
     }
 
-    public boolean isTransparent(int id) {
-        if (data.containsKey(id)) {
-            return data.get(id).isTransparent();
-        } else {
-            return false;
-        }
-    }
-
     public Color getColor(int id) {
         if (data.containsKey(id)) {
-            return data.get(id).getColor();
-        } else {
-            return Color.WHITE;
+            if (!data.get(id).isTransparent()) {
+                return data.get(id).getColor();
+            }
         }
+        return null;
     }
 }

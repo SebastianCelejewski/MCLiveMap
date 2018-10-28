@@ -19,17 +19,23 @@ public class When_getting_block_colour {
     @Before
     public void setUp() {
         Map<Integer, Block> data = new HashMap<>();
-        data.put(1, new Block(1, "a name", false, color));
+        data.put(1, new Block(1, "transparent", true, color));
+        data.put(2, new Block(1, "solid", false, color));
         blockData = new BlockData(data);
     }
 
     @Test
-    public void should_return_false_for_unknown_block() {
-        Assert.assertEquals(Color.WHITE, blockData.getColor(0));
+    public void should_return_null_for_unknown_block() {
+        Assert.assertEquals(null, blockData.getColor(0));
     }
 
     @Test
-    public void should_return_actual_transparency_for_known_block() {
-        Assert.assertEquals(color, blockData.getColor(1));
+    public void should_return_null_for_transparent_block() {
+        Assert.assertEquals(null, blockData.getColor(1));
+    }
+
+    @Test
+    public void should_return_actual_colour_for_solid_block() {
+        Assert.assertEquals(color, blockData.getColor(2));
     }
 }

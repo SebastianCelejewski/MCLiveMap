@@ -7,11 +7,13 @@ import pl.sebcel.mclivemap.BlockData;
 import pl.sebcel.mclivemap.ColourTable;
 import pl.sebcel.mclivemap.domain.Chunk;
 import pl.sebcel.mclivemap.domain.Region;
+import pl.sebcel.mclivemap.loaders.BlockIdsCache;
 
 public class TerrainRenderer {
 
     private BlockData blockData;
     private ColourTable colourTable;
+    private BlockIdsCache blockIdsCache;
 
     public void setBlockData(BlockData blockData) {
         this.blockData = blockData;
@@ -19,6 +21,10 @@ public class TerrainRenderer {
 
     public void setColourTable(ColourTable colourTable) {
         this.colourTable = colourTable;
+    }
+
+    public void setBlockIdsCache(BlockIdsCache blockIdsCache) {
+        this.blockIdsCache = blockIdsCache;
     }
 
     public BufferedImage renderTerrain(Region region) {
@@ -41,50 +47,32 @@ public class TerrainRenderer {
             int chunkZ = chunk.getChunkZ();
 
             int[] heightMap = chunk.getHeightMap();
-            int[] numericBlockIds = chunk.getNumericBlockIds();
-            String[] stringBlockIds = chunk.getStringBlockIds();
-            boolean blockIdsAreStrings = chunk.isBlockIdsAreStrings();
+            int[] blockIds = chunk.getBlockIds();
+            boolean is1_13 = chunk.isId1_13();
 
             for (int x = 0; x < 16; x++) {
                 for (int z = 0; z < 16; z++) {
                     int baseHeight = heightMap[x + 16 * z];
                     int height = baseHeight;
-                    boolean heightOnly = false;
+                    boolean foundNonTransparent = false;
+                    while (!foundNonTransparent && height >= 0) {
+                        int blockId = blockIds[x + 16 * z + 16 * 16 * height];
+                        Color color = null;
+                        if (is1_13) {
+                            String stringBlockId = blockIdsCache.getStringBlockId(blockId);
+                            color = colourTable.getColor(stringBlockId);
+                        } else {
+                            color = blockData.getColor(blockId);
+                        }
 
-                    if (heightOnly) {
-                        Color color = new Color(height, 255 - height, 0);
-                        int imageX = chunkX * 16 + x - minX;
-                        int imageY = chunkZ * 16 + z - minZ;
-                        image.setRGB(imageX, imageY, color.getRGB());
-                    } else {
-                        boolean foundNonTransparent = false;
-                        while (!foundNonTransparent && height >= 0) {
-                            if (!blockIdsAreStrings) {
-                                int blockId = (int) numericBlockIds[x + 16 * z + 16 * 16 * height] & 0xFF;
-                                
-                                if (!blockData.isTransparent(blockId)) {
-                                    Color color = blockData.getColor(blockId);
-                                    int imageX = chunkX * 16 + x - minX;
-                                    int imageY = chunkZ * 16 + z - minZ;
-                                    color = modifyColorBasedOnRegionHeightMap(color, regionHeightMap, heightMap, x, z, imageX, imageY, baseHeight);
-                                    image.setRGB(imageX, imageY, color.getRGB());
-                                    foundNonTransparent = true;
-                                } else {
-                                    height--;
-                                }
-                            } else {
-                                String blockId = stringBlockIds[x + 16 * z + 16 * 16 * height];
-                                Color color = colourTable.getColor(blockId);
-                                if (color != null) {
-                                    int imageX = chunkX * 16 + x - minX;
-                                    int imageY = chunkZ * 16 + z - minZ;
-                                    color = modifyColorBasedOnRegionHeightMap(color, regionHeightMap, heightMap, x, z, imageX, imageY, baseHeight);
-                                    image.setRGB(imageX, imageY, color.getRGB());
-                                    foundNonTransparent = true;
-                                } else {
-                                    height--;
-                                }
-                            }
+                        if (color != null) {
+                            int imageX = chunkX * 16 + x - minX;
+                            int imageY = chunkZ * 16 + z - minZ;
+                            color = modifyColorBasedOnRegionHeightMap(color, regionHeightMap, heightMap, x, z, imageX, imageY, baseHeight);
+                            image.setRGB(imageX, imageY, color.getRGB());
+                            foundNonTransparent = true;
+                        } else {
+                            height--;
                         }
                     }
                 }

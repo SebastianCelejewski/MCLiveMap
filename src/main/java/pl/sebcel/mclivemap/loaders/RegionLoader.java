@@ -20,8 +20,16 @@ import pl.sebcel.mclivemap.utils.FileUtils;
 public class RegionLoader {
 
     private Decompressor decompressor = new Decompressor();
-    private IChunkLoader chunkLoader_1_12 = new ChunkLoader_1_12();
-    private IChunkLoader chunkLoader_1_13 = new ChunkLoader_1_13();
+    private IChunkLoader chunkLoader_1_12;
+    private IChunkLoader chunkLoader_1_13;
+
+    public void setChunkLoader_1_12(IChunkLoader chunkLoader) {
+        this.chunkLoader_1_12 = chunkLoader;
+    }
+
+    public void setChunkLoader_1_13(IChunkLoader chunkLoader) {
+        this.chunkLoader_1_13 = chunkLoader;
+    }
 
     /**
      * May return null if region does not yet exist
@@ -40,7 +48,7 @@ public class RegionLoader {
         }
 
         List<Chunk> chunks = new ArrayList<>();
-        
+
         boolean loadedSuccessfully = true;
         Integer chunkX = null;
         Integer chunkZ = null;
@@ -68,26 +76,18 @@ public class RegionLoader {
                 chunkZ = ((Tag<Integer>) levelTag.get("zPos")).getValue();
 
                 Chunk chunk = new Chunk(chunkX, chunkZ);
-                if (is1_12_chunk(dataVersion)) {
-                    int[] heightMapData = chunkLoader_1_12.getHeightMap(levelTag);
-                    int[] blockData = chunkLoader_1_12.getNumbericBlockIds(levelTag);
-                    chunk.setHeightMap(heightMapData);
-                    chunk.setNumericBlockIds(blockData);
-                    chunk.setBlockIdsAreStrings(false);
-                } else if (is1_13_chunk(dataVersion) && hasLegacyStructureData) {
-                    int[] heightMapData = chunkLoader_1_12.getHeightMap(levelTag);
-                    String[] blockData = chunkLoader_1_13.getStringBlockIds(levelTag);
-                    chunk.setHeightMap(heightMapData);
-                    chunk.setStringBlockIds(blockData);
-                    chunk.setBlockIdsAreStrings(true);
-                } else if (is1_13_chunk(dataVersion) && !hasLegacyStructureData) {
-                    int[] heightMapData = chunkLoader_1_13.getHeightMap(levelTag);
-                    String[] blockData = chunkLoader_1_13.getStringBlockIds(levelTag);
-                    chunk.setHeightMap(heightMapData);
-                    chunk.setStringBlockIds(blockData);
-                    chunk.setBlockIdsAreStrings(true);
+                if (is1_12_chunk(dataVersion) || hasLegacyStructureData) {
+                    chunk.setHeightMap(chunkLoader_1_12.getHeightMap(levelTag));
                 } else {
-                    throw new RuntimeException("Unknown type of a tag, dataVersion: " + dataVersion);
+                    chunk.setHeightMap(chunkLoader_1_13.getHeightMap(levelTag));
+                }
+
+                if (is1_12_chunk(dataVersion)) {
+                    chunk.setId1_13(false);
+                    chunk.setBlockIds(chunkLoader_1_12.getBlockIds(levelTag));
+                } else {
+                    chunk.setId1_13(true);
+                    chunk.setBlockIds(chunkLoader_1_13.getBlockIds(levelTag));
                 }
 
                 chunks.add(chunk);

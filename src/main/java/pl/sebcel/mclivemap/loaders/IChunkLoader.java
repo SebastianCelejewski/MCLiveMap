@@ -6,7 +6,6 @@ public interface IChunkLoader {
     
     public int[] getHeightMap(CompoundMap levelTag);
     
-    public int[] getNumbericBlockIds(CompoundMap levelTag);
+    public int[] getBlockIds(CompoundMap levelTag);
 
-    public String[] getStringBlockIds(CompoundMap levelTag);
 }

@@ -15,6 +15,9 @@ import pl.sebcel.mclivemap.domain.PlayerLocation;
 import pl.sebcel.mclivemap.domain.RegionCoordinates;
 import pl.sebcel.mclivemap.domain.WorldMap;
 import pl.sebcel.mclivemap.loaders.BlockDataLoader;
+import pl.sebcel.mclivemap.loaders.BlockIdsCache;
+import pl.sebcel.mclivemap.loaders.ChunkLoader_1_12;
+import pl.sebcel.mclivemap.loaders.ChunkLoader_1_13;
 import pl.sebcel.mclivemap.loaders.PlayerLoader;
 import pl.sebcel.mclivemap.loaders.RegionImageLoader;
 import pl.sebcel.mclivemap.loaders.RegionLoader;
@@ -33,6 +36,9 @@ public class Program {
     private PlayerRenderer playerRenderer = new PlayerRenderer();
     private SiteRenderer siteRenderer = new SiteRenderer();
     private RegionImageLoader regionImageLoader = new RegionImageLoader();
+    private BlockIdsCache blockIdsCache = new BlockIdsCache();
+    private ChunkLoader_1_12 chunkLoader_1_12 = new ChunkLoader_1_12();
+    private ChunkLoader_1_13 chunkLoader_1_13 = new ChunkLoader_1_13();
 
     public static void main(String[] args) {
         new Program().run(args);
@@ -64,10 +70,15 @@ public class Program {
         regionImageLoader.setCacheInvalidationTimeInMinutes(60);
 
         BlockData blockData = blockDataLoader.loadBlockData("vanilla_ids.json");
+        chunkLoader_1_13.setBlockIdsCache(blockIdsCache);
+        regionLoader.setChunkLoader_1_12(chunkLoader_1_12);
+        regionLoader.setChunkLoader_1_13(chunkLoader_1_13);
+        
         ColourTable colourTable = new ColourTable();
         colourTable.loadColourTable("colourTable.csv");
         terrainRenderer.setBlockData(blockData);
         terrainRenderer.setColourTable(colourTable);
+        terrainRenderer.setBlockIdsCache(blockIdsCache);
         
         List<PlayerData> playersData = playerLoader.loadPlayersData(locationsDirectory);
 
