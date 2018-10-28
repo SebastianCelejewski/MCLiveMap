@@ -24,4 +24,12 @@ public class FileUtils {
             throw new RuntimeException("Failed to save file " + filePath + ": " + ex.getMessage(), ex);
         }
     }
+    
+    public static byte[] loadFile(String filePath) {
+        try {
+            return Files.readAllBytes(Paths.get(filePath));
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to load file " + filePath + ": " + ex.getMessage(), ex);
+        }
+    }    
 }

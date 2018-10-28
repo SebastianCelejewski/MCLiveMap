@@ -3,14 +3,8 @@ package pl.sebcel.mclivemap.loaders;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.ByteOrder;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.flowpowered.nbt.ByteTag;
 import com.flowpowered.nbt.CompoundMap;
@@ -24,10 +18,13 @@ import com.flowpowered.nbt.stream.NBTInputStream;
 import pl.sebcel.mclivemap.domain.Chunk;
 import pl.sebcel.mclivemap.domain.Region;
 import pl.sebcel.mclivemap.domain.RegionCoordinates;
+import pl.sebcel.mclivemap.utils.FileUtils;
 
 public class RegionLoader {
 
     private Decompressor decompressor = new Decompressor();
+
+    private NBTLongArrayDecompressor nbtLongArrayDecompressor = new NBTLongArrayDecompressor();
 
     /**
      * May return null if region does not yet exist
@@ -39,7 +36,7 @@ public class RegionLoader {
 
         byte[] regionData;
         try {
-            regionData = loadFile(fullPath);
+            regionData = FileUtils.loadFile(fullPath);
         } catch (Exception ex) {
             System.out.println("Could not load region " + regionCoordinates + ": " + ex.getMessage() + ". Skipping.");
             return null;
@@ -68,7 +65,7 @@ public class RegionLoader {
                 CompoundMap child = (CompoundMap) t.getValue();
                 CompoundMap levelTag = (CompoundMap) child.get("Level").getValue();
                 dataVersion = ((IntTag) child.get("DataVersion")).getValue().intValue();
-                boolean hasLegacyStructureData = levelTag.get("hasLegacyStructureData") != null && ((ByteTag) levelTag.get("hasLegacyStructureData")).getValue().byteValue() == 1; 
+                boolean hasLegacyStructureData = levelTag.get("hasLegacyStructureData") != null && ((ByteTag) levelTag.get("hasLegacyStructureData")).getValue().byteValue() == 1;
                 chunkX = ((Tag<Integer>) levelTag.get("xPos")).getValue();
                 chunkZ = ((Tag<Integer>) levelTag.get("zPos")).getValue();
 
@@ -89,7 +86,7 @@ public class RegionLoader {
                     }
                     chunk.setNumericBlockIds(numericBlockIds);
                     chunk.setBlockIdsAreStrings(false);
-                } else if (is1_13_chunk(dataVersion)){
+                } else if (is1_13_chunk(dataVersion)) {
                     String[] stringBlockIds = new String[16 * 16 * 256];
                     if (hasLegacyStructureData) {
                         int[] heightMapData = (int[]) levelTag.get("HeightMap").getValue();
@@ -98,17 +95,17 @@ public class RegionLoader {
                         CompoundTag heightmapsTag = (CompoundTag) levelTag.get("Heightmaps");
                         LongArrayTag surfaceHeightMapTag = (LongArrayTag) (heightmapsTag.getValue().get("WORLD_SURFACE"));
                         long[] compressedHeightMapData = surfaceHeightMapTag.getValue();
-                        int[] heightMapData = decompressHeightMapData(compressedHeightMapData);
+                        int[] heightMapData = nbtLongArrayDecompressor.decompress(compressedHeightMapData, 256);
                         chunk.setHeightMap(heightMapData);
                     }
-                    
+
                     ListTag sectionsTag = (ListTag) levelTag.get("Sections");
                     List<CompoundTag> sectionsTags = sectionsTag.getValue();
                     for (CompoundTag section : sectionsTags) {
                         ListTag paletteTag = (ListTag) section.getValue().get("Palette");
                         byte yPos = ((Tag<Byte>) section.getValue().get("Y")).getValue();
-                        long[] sectionEncodedBlockIds = (long[]) section.getValue().get("BlockStates").getValue();
-                        int[] sectionBlockIdxs = decompressBlockStateData(sectionEncodedBlockIds);
+                        long[] compressedSectionEncodedBlockIds = (long[]) section.getValue().get("BlockStates").getValue();
+                        int[] sectionBlockIdxs = nbtLongArrayDecompressor.decompress(compressedSectionEncodedBlockIds, 256 * 16);
                         for (int ii = 0; ii < sectionBlockIdxs.length; ii++) {
                             stringBlockIds[ii + yPos * 4096] = ((CompoundTag) paletteTag.getValue().get(sectionBlockIdxs[ii])).getValue().get("Name").getValue().toString();
                         }
@@ -120,7 +117,6 @@ public class RegionLoader {
                 }
 
                 chunks.add(chunk);
-                //System.out.println("Successfully loaded height data\nFile: " + fullPath + ", idx: " + i + ", chunkX: " + chunkX + ", chunkZ: " + chunkZ + ", dataVersion: " + dataVersion);
             } catch (Exception ex) {
                 System.err.println("Failed to load height data: " + ex.getMessage() + "\nFile: " + fullPath + ", idx: " + i + ", chunkX: " + chunkX + ", chunkZ: " + chunkZ + ", dataVersion: " + dataVersion);
                 ex.printStackTrace();
@@ -132,77 +128,12 @@ public class RegionLoader {
         return region;
     }
 
-    private int[] decompressHeightMapData(long[] compressedHeightMapData) {
-        String bitsString = Arrays.stream(compressedHeightMapData)
-              .map(l -> Long.reverse(l))
-              .mapToObj(l -> Long.toBinaryString(l))
-              .map(s -> padWithZeroesToMake64bits(s))
-              .collect(Collectors.joining(""));
-
-        int bitsPerValue = bitsString.length() / 256;
-        int[] heightMap = Arrays.stream(splitIntoFixedLengthString(bitsString, bitsPerValue))
-            .map(s -> reverse(s))
-            .mapToInt(s -> Integer.parseInt(s, 2))
-            .toArray();
-
-        return heightMap;
-    }
-    
-    private int[] decompressBlockStateData(long[] compressedBlockStatesData) {
-        String bitsString = Arrays.stream(compressedBlockStatesData)
-                .map(l -> Long.reverse(l))
-                .mapToObj(l -> Long.toBinaryString(l))
-                .map(s -> padWithZeroesToMake64bits(s))
-                .collect(Collectors.joining(""));
-          int bitsPerValue = bitsString.length() / (16 * 16 * 16);
-
-          int[] blockData = Arrays.stream(splitIntoFixedLengthString(bitsString, bitsPerValue))
-                  .map(s -> reverse(s))
-                  .mapToInt(s -> Integer.parseInt(s, 2))
-                  .toArray();
-    
-          return blockData;
-    }
-
-    private String padWithZeroesToMake64bits(String s) {
-        while (s.length() < 64) {
-            s = "0" + s;
-        }
-        return s;
-    }
-    
-    
-    private String reverse(String s) {
-        char[] output = new char[s.length()];
-        for (int i = 0; i < s.length(); i++) {
-            output[s.length()-i-1] = s.charAt(i);
-        }
-        return new String(output);
-    }
-    
-    private String[] splitIntoFixedLengthString(String s, int chunkLength) {
-        String[] outputChunks = new String[s.length() / chunkLength];
-        for (int i = 0; i < outputChunks.length; i++) {
-            outputChunks[i] = s.substring(i * chunkLength,  (i+1) * chunkLength);
-        }
-        return outputChunks;
-    }
-
     private boolean is1_12_chunk(int dataVersion) {
         return dataVersion < 1631;
     }
 
     private boolean is1_13_chunk(int dataVersion) {
         return dataVersion >= 1631;
-    }
-    
-
-    private byte[] loadFile(String filePath) {
-        try {
-            return Files.readAllBytes(Paths.get(filePath));
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to load file " + filePath + ": " + ex.getMessage(), ex);
-        }
     }
 
     private int getChunkOffset(byte[] regionData, int idx) {
@@ -221,18 +152,7 @@ public class RegionLoader {
             nis.close();
             return t;
         } catch (Exception ex) {
-            saveInvalidChunkDataForTroubleshooting(chunkData);
             throw new RuntimeException("Failed to deserialize NBT tags from raw chunk data: " + ex.getMessage(), ex);
-        }
-    }
-
-    private void saveInvalidChunkDataForTroubleshooting(byte[] chunkData) {
-        try {
-            String fileName = UUID.randomUUID().toString() + ".dta";
-            Files.write(Paths.get(fileName), chunkData, StandardOpenOption.CREATE);
-            System.err.println("Invalid chunk data written to file " + fileName);
-        } catch (Exception ex) {
-            System.err.println("Failed to write invalid chunk data for troubleshooting. Ignoring");
         }
     }
 }
