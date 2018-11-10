@@ -55,14 +55,16 @@ public class RegionImageLoader {
                 }
             } else {
                 Region region = regionLoader.loadRegion(worldDirectory, regionCoordinates);
-                if (!region.isLoadedSuccessfully()) {
-                    throw new RuntimeException("Region did not load successfully. Cannot render region image.");
-                }
                 regionImage = terrainRenderer.renderTerrain(region);
-                try {
-                    ImageIO.write(regionImage, "png", imageFile);
-                } catch (Exception ex) {
-                    throw new RuntimeException("Failed to save region image to " + imageFile.getAbsolutePath() + ": " + ex.getMessage());
+                if (region.isLoadedSuccessfully()) {
+                    System.out.println("Region rendered successfully, saving to cache.");
+                    try {
+                        ImageIO.write(regionImage, "png", imageFile);
+                    } catch (Exception ex) {
+                        throw new RuntimeException("Failed to save region image to " + imageFile.getAbsolutePath() + ": " + ex.getMessage());
+                    }
+                } else {
+                    System.err.println("Region did not render successfully, not saving to cache.");
                 }
             }
 
