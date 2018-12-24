@@ -56,7 +56,7 @@ public class RegionImageLoader {
             } else {
                 Region region = regionLoader.loadRegion(worldDirectory, regionCoordinates);
                 regionImage = terrainRenderer.renderTerrain(region);
-                if (region.isLoadedSuccessfully()) {
+                if (region != null) {
                     System.out.println("Region rendered successfully, saving to cache.");
                     try {
                         ImageIO.write(regionImage, "png", imageFile);

@@ -4,14 +4,17 @@ import java.awt.Color;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import pl.sebcel.mclivemap.utils.ColorUtils;
 
 public class ColourTable {
 
     private Map<String, Color> data = new HashMap<>();
+    private Set<String> missingEntities = new HashSet<>();
 
     public void loadColourTable(String colourTableFilePath) {
         try {
@@ -30,6 +33,12 @@ public class ColourTable {
     }
 
     public Color getColor(String id) {
+        if (!data.containsKey(id)) {
+            if (!missingEntities.contains(id)) {
+                System.out.println("Colour for " + id + " is missing");
+                missingEntities.add(id);
+            }
+        }
         return data.get(id);
     }
 

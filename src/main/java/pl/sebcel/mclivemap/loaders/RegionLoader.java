@@ -49,7 +49,6 @@ public class RegionLoader {
 
         List<Chunk> chunks = new ArrayList<>();
 
-        boolean loadedSuccessfully = true;
         Integer chunkX = null;
         Integer chunkZ = null;
         Integer dataVersion = null;
@@ -94,12 +93,11 @@ public class RegionLoader {
             } catch (Exception ex) {
                 System.err.println("Failed to load height data: " + ex.getMessage() + "\nFile: " + fullPath + ", idx: " + i + ", chunkX: " + chunkX + ", chunkZ: " + chunkZ + ", dataVersion: " + dataVersion);
                 ex.printStackTrace();
-                loadedSuccessfully = false;
+                return null;
             }
         }
 
-        Region region = new Region(regionCoordinates, chunks, loadedSuccessfully);
-        return region;
+        return new Region(regionCoordinates, chunks);
     }
 
     private boolean is1_12_chunk(int dataVersion) {

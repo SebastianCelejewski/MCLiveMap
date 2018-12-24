@@ -56,7 +56,11 @@ public class TerrainRenderer {
                     int height = baseHeight;
                     boolean foundNonTransparent = false;
                     while (!foundNonTransparent && height >= 0) {
-                        int blockId = blockIds[x + 16 * z + 16 * 16 * height];
+                        int blockIdx = x + 16 * z + 16 * 16 * height;
+                        if (blockIdx > 65535) {
+                            blockIdx = 65535;
+                        }
+                        int blockId = blockIds[blockIdx];
                         Color color = null;
                         if (is1_13) {
                             String stringBlockId = blockIdsCache.getStringBlockId(blockId);

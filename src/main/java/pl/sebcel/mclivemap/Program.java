@@ -57,7 +57,7 @@ public class Program {
         String outputDirectory = args[2];
         String cacheDirectory = "_cache";
         
-        Mode pathsDrawingMode = Mode.NONE;
+        Mode pathsDrawingMode = Mode.SINGLE_PLAYER;
 
         verifyDirectory(worldDirectory, false);
         verifyDirectory(locationsDirectory, false);

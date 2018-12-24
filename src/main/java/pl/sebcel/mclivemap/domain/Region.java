@@ -6,12 +6,10 @@ public class Region {
 
     private RegionCoordinates coordinates;
     private List<Chunk> chunks;
-    private boolean loadedSuccessfully;
 
-    public Region(RegionCoordinates coordinates, List<Chunk> chunks, boolean loadedSuccessfully) {
+    public Region(RegionCoordinates coordinates, List<Chunk> chunks) {
         this.coordinates = coordinates;
         this.chunks = chunks;
-        this.loadedSuccessfully = loadedSuccessfully;
     }
 
     public RegionCoordinates getCoordinates() {
@@ -21,9 +19,4 @@ public class Region {
     public List<Chunk> getChunks() {
         return chunks;
     }
-
-    public boolean isLoadedSuccessfully() {
-        return loadedSuccessfully;
-    }
-
 }
