@@ -16,11 +16,25 @@ public class ChunkLoader_1_13 implements IChunkLoader {
     public void setBlockIdsCache(BlockIdsCache blockIdsCache) {
         this.blockIdsCache = blockIdsCache;
     }
+    
+    private int[] renderEmptyHeightMap() {
+        int[] result = new int[256];
+        for (int i = 0; i < 256; i++) {
+            result[i] = 255;
+        }
+        return result;
+    }
 
     @Override
     public int[] getHeightMap(CompoundMap levelTag) {
         CompoundTag heightmapsTag = (CompoundTag) levelTag.get("Heightmaps");
         LongArrayTag surfaceHeightMapTag = (LongArrayTag) (heightmapsTag.getValue().get("WORLD_SURFACE"));
+        if (surfaceHeightMapTag == null) {
+            surfaceHeightMapTag = (LongArrayTag) (heightmapsTag.getValue().get("WORLD_SURFACE_WG"));
+            if (surfaceHeightMapTag == null) {
+                return renderEmptyHeightMap();
+            } 
+        }
         long[] compressedHeightMapData = surfaceHeightMapTag.getValue();
         int[] heightMapData = nbtLongArrayDecompressor.decompress(compressedHeightMapData, 256);
         return heightMapData;
