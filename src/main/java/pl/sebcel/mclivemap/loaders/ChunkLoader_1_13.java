@@ -48,6 +48,9 @@ public class ChunkLoader_1_13 implements IChunkLoader {
         for (CompoundTag section : sectionsTags) {
             ListTag paletteTag = (ListTag) section.getValue().get("Palette");
             byte yPos = ((Tag<Byte>) section.getValue().get("Y")).getValue();
+            if (section.getValue().get("BlockStates") == null) {
+                continue;
+            }
             long[] compressedSectionEncodedBlockIds = (long[]) section.getValue().get("BlockStates").getValue();
             int[] sectionBlockIdxs = nbtLongArrayDecompressor.decompress(compressedSectionEncodedBlockIds, 256 * 16);
             for (int i = 0; i < sectionBlockIdxs.length; i++) {

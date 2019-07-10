@@ -70,6 +70,7 @@ public class RegionLoader {
                 CompoundMap child = (CompoundMap) t.getValue();
                 CompoundMap levelTag = (CompoundMap) child.get("Level").getValue();
                 dataVersion = ((IntTag) child.get("DataVersion")).getValue().intValue();
+                
                 boolean hasLegacyStructureData = levelTag.get("hasLegacyStructureData") != null && ((ByteTag) levelTag.get("hasLegacyStructureData")).getValue().byteValue() == 1;
                 chunkX = ((Tag<Integer>) levelTag.get("xPos")).getValue();
                 chunkZ = ((Tag<Integer>) levelTag.get("zPos")).getValue();
