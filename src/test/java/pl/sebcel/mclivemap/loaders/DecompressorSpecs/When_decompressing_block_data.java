@@ -25,7 +25,7 @@ public class When_decompressing_block_data {
         for (int i = 0; i < input.length; i++) {
         	input[i] = ((Long) inputLongs[i]).longValue();
         }
-        int[] output = cut.decompress(input, numberOfValues);
+        int[] output = cut.decompress(input, numberOfValues, -1);
         
         for (int i = 0; i < output.length; i++) {
         	Assert.assertTrue("Value " + output[i] + " at index " + i + " goes beyond the palette size", output[i] < palette.size());

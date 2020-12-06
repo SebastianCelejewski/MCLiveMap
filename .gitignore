@@ -12,3 +12,4 @@ gradlew.bat
 .project
 .classpath
 *.image
+/.externalToolBuilders/

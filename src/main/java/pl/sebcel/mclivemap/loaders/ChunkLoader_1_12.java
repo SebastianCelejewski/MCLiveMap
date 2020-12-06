@@ -10,12 +10,12 @@ import com.flowpowered.nbt.Tag;
 public class ChunkLoader_1_12 implements IChunkLoader {
 
     @Override
-    public int[] getHeightMap(CompoundMap levelTag) {
+    public int[] getHeightMap(CompoundMap levelTag, int dataVersion) {
         return (int[]) levelTag.get("HeightMap").getValue();
     }
 
     @Override
-    public int[] getBlockIds(CompoundMap levelTag) {
+    public int[] getBlockIds(CompoundMap levelTag, int dataVersion) {
         int[] blockIds = new int[16 * 16 * 256];
         ListTag sectionsTag = (ListTag) levelTag.get("Sections");
         List<CompoundTag> sectionsTags = sectionsTag.getValue();

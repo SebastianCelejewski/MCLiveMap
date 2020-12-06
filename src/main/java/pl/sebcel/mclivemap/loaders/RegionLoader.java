@@ -30,7 +30,7 @@ public class RegionLoader {
     public void setChunkLoader_1_13(IChunkLoader chunkLoader) {
         this.chunkLoader_1_13 = chunkLoader;
     }
-
+    
     /**
      * May return null if region does not yet exist
      */
@@ -77,17 +77,17 @@ public class RegionLoader {
 
                 Chunk chunk = new Chunk(chunkX, chunkZ);
                 if (is1_12_chunk(dataVersion) || hasLegacyStructureData) {
-                    chunk.setHeightMap(chunkLoader_1_12.getHeightMap(levelTag));
+                    chunk.setHeightMap(chunkLoader_1_12.getHeightMap(levelTag, dataVersion));
                 } else {
-                    chunk.setHeightMap(chunkLoader_1_13.getHeightMap(levelTag));
+                    chunk.setHeightMap(chunkLoader_1_13.getHeightMap(levelTag, dataVersion));
                 }
 
                 if (is1_12_chunk(dataVersion)) {
                     chunk.setId1_13(false);
-                    chunk.setBlockIds(chunkLoader_1_12.getBlockIds(levelTag));
+                    chunk.setBlockIds(chunkLoader_1_12.getBlockIds(levelTag, dataVersion));
                 } else {
                     chunk.setId1_13(true);
-                    chunk.setBlockIds(chunkLoader_1_13.getBlockIds(levelTag));
+                    chunk.setBlockIds(chunkLoader_1_13.getBlockIds(levelTag, dataVersion));
                 }
 
                 chunks.add(chunk);
